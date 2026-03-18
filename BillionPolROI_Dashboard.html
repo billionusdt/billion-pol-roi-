@@ -3,598 +3,742 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<meta name="theme-color" content="#060a0f"/>
-<title>Billion Pol ROI</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<meta name="theme-color" content="#03060d"/>
+<title>Billion Pol ROI - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <style>
+/* 
+   RESET & ROOT
+ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --bg:#060a0f;--bg1:#0a1018;--bg2:#0f1622;--card:#111a27;--card2:#162030;
-  --border:#1c2d3f;--border2:#243548;
-  --gold:#e8a020;--gold2:#f5c842;--golddim:rgba(232,160,32,0.12);
-  --cyan:#00c8f0;--cyandim:rgba(0,200,240,0.1);
-  --green:#00e08a;--greendim:rgba(0,224,138,0.1);
-  --red:#ff4560;--reddim:rgba(255,69,96,0.1);
-  --purple:#9b6dff;--orange:#ff8c42;
-  --text:#dce8f0;--text2:#8a9fb0;--text3:#4a6070;
-  --r:12px;--r2:18px;--r3:22px;
-  --shadow:0 8px 32px rgba(0,0,0,0.5);
+  --bg:        #03060d;
+  --bg1:       #060b15;
+  --bg2:       #0a1120;
+  --bg3:       #0e172b;
+  --glass:     rgba(14,23,43,0.7);
+  --card:      rgba(11,19,36,0.95);
+  --border:    rgba(255,255,255,0.06);
+  --border2:   rgba(255,255,255,0.1);
+  --blue:      #2081e2;
+  --blue2:     #4fa3f7;
+  --bluedim:   rgba(32,129,226,0.12);
+  --blueglow:  rgba(32,129,226,0.25);
+  --gold:      #f0b429;
+  --gold2:     #fcd34d;
+  --golddim:   rgba(240,180,41,0.1);
+  --teal:      #06d6a0;
+  --tealdim:   rgba(6,214,160,0.1);
+  --red:       #ef4444;
+  --reddim:    rgba(239,68,68,0.1);
+  --purple:    #8b5cf6;
+  --purpledim: rgba(139,92,246,0.1);
+  --text:      #e2e8f5;
+  --text2:     #7890b0;
+  --text3:     #3a5070;
+  --r:         10px;
+  --r2:        16px;
+  --r3:        22px;
 }
-html{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+html{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
 body{
   min-height:100vh;width:100%;overflow-x:hidden;
   background:
-    radial-gradient(ellipse 100% 60% at 50% -10%,rgba(232,160,32,0.07) 0%,transparent 65%),
-    radial-gradient(ellipse 70% 50% at 100% 60%,rgba(0,200,240,0.04) 0%,transparent 60%),
+    radial-gradient(ellipse 120% 50% at 50% -5%, rgba(32,129,226,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 40% at 100% 60%, rgba(139,92,246,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 30% at 0% 80%, rgba(6,214,160,0.04) 0%, transparent 50%),
     var(--bg);
 }
-::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar{width:3px;height:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
-@keyframes scaleIn{from{opacity:0;transform:scale(.93);}to{opacity:1;transform:scale(1);}}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+/*  KEYFRAMES  */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.94);}to{opacity:1;transform:scale(1);}}
 @keyframes spin{to{transform:rotate(360deg);}}
-@keyframes roiGlow{0%,100%{color:var(--gold2);text-shadow:0 0 20px rgba(245,200,66,0.3);}50%{color:var(--gold);text-shadow:0 0 40px rgba(232,160,32,0.6);}}
-@keyframes bounce{0%{transform:scale(.5);opacity:0;}55%{transform:scale(1.06);}75%{transform:scale(.97);}100%{transform:scale(1);opacity:1;}}
-@keyframes toastUp{from{transform:translateY(50px) scale(.92);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
-@keyframes glowBorder{0%,100%{box-shadow:0 0 0 0 transparent;}50%{box-shadow:0 0 24px rgba(232,160,32,0.18);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes glow{0%,100%{box-shadow:0 0 10px rgba(32,129,226,0.2);}50%{box-shadow:0 0 30px rgba(32,129,226,0.5);}}
+@keyframes roiPulse{0%,100%{color:var(--gold);}50%{color:var(--gold2);text-shadow:0 0 20px rgba(240,180,41,0.5);}}
+@keyframes bounceIn{0%{opacity:0;transform:scale(0.5);}60%{transform:scale(1.06);}80%{transform:scale(0.97);}100%{opacity:1;transform:scale(1);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(60px);}to{opacity:1;transform:translateY(0);}}
 @keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+@keyframes ticker{from{transform:translateX(100%);}to{transform:translateX(-100%);}};
 
-/* ---- CONNECT ---- */
-#connectScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
-.c-card{
-  width:100%;max-width:400px;
-  background:var(--card);border:1px solid var(--border2);
-  border-radius:var(--r3);padding:38px 28px;
-  box-shadow:var(--shadow),0 0 0 1px rgba(232,160,32,0.06);
-  animation:scaleIn .5s cubic-bezier(.34,1.3,.64,1);
+/*  CONNECT SCREEN  */
+#connectScreen{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:20px;
+  position:relative;
+}
+.connect-outer{width:100%;max-width:420px;animation:scaleIn 0.55s cubic-bezier(0.34,1.3,0.64,1);}
+.connect-card{
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:24px;
+  padding:40px 32px;
   position:relative;overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(32,129,226,0.08);
 }
-.c-card::before{
+.connect-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),var(--gold),transparent);
+  background:linear-gradient(90deg,transparent,var(--blue2),var(--blue),transparent);
 }
-.c-logo-ring{
-  width:72px;height:72px;border-radius:20px;
-  background:var(--golddim);border:1px solid rgba(232,160,32,.3);
-  margin:0 auto 20px;display:flex;align-items:center;justify-content:center;
-  font-size:30px;animation:glowBorder 3s ease-in-out infinite;
+.connect-logo{
+  width:76px;height:76px;border-radius:22px;
+  background:linear-gradient(135deg,var(--bluedim),rgba(32,129,226,0.05));
+  border:1px solid rgba(32,129,226,0.25);
+  margin:0 auto 22px;
+  display:flex;align-items:center;justify-content:center;
+  animation:glow 3s ease-in-out infinite;
 }
-.c-brand{
-  font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
-  text-align:center;margin-bottom:7px;color:var(--text);letter-spacing:.5px;
+.connect-logo svg{width:38px;height:38px;}
+.connect-brand{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:26px;font-weight:700;
+  text-align:center;margin-bottom:8px;
+  color:var(--text);letter-spacing:-0.3px;
 }
-.c-brand span{color:var(--gold2);}
-.c-sub{color:var(--text2);text-align:center;font-size:13px;line-height:1.7;margin-bottom:24px;}
-.c-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:24px;}
-.cs{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:13px 12px;text-align:center;}
-.cs-v{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--gold2);}
-.cs-l{font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:.6px;text-transform:uppercase;}
+.connect-brand .pol{color:var(--blue2);}
+.connect-tagline{
+  color:var(--text2);text-align:center;font-size:13px;
+  line-height:1.7;margin-bottom:28px;font-weight:400;
+}
+.connect-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
+.cs-item{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);border-radius:14px;
+  padding:14px 12px;text-align:center;
+  transition:border-color 0.2s;
+}
+.cs-item:hover{border-color:var(--border2);}
+.cs-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:18px;font-weight:600;color:var(--blue2);
+}
+.cs-lbl{font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:0.6px;text-transform:uppercase;}
+.connect-divider{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:20px;
+}
+.connect-divider-line{flex:1;height:1px;background:var(--border);}
+.connect-divider-text{font-size:11px;color:var(--text3);letter-spacing:0.5px;}
 
-/* ---- BUTTONS ---- */
+/*  BUTTONS  */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
-  gap:7px;padding:13px 20px;border-radius:var(--r);border:none;
-  cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;
-  font-weight:600;letter-spacing:.3px;transition:all .2s;
-  white-space:nowrap;user-select:none;
+  gap:7px;padding:13px 20px;border-radius:var(--r2);border:none;
+  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;font-weight:600;transition:all 0.2s;
+  white-space:nowrap;user-select:none;letter-spacing:0.1px;
 }
-.btn:active{transform:scale(.97);}
-.btn:disabled{opacity:.38;pointer-events:none;}
+.btn:active{transform:scale(0.97);}
+.btn:disabled{opacity:0.4;pointer-events:none;}
 .btn-block{width:100%;}
+.btn-blue{
+  background:var(--blue);color:#fff;
+  box-shadow:0 4px 20px rgba(32,129,226,0.35),inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.btn-blue:hover{background:#1a6fd4;box-shadow:0 6px 28px rgba(32,129,226,0.5);}
+.btn-glass{
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border2);color:var(--text2);
+}
+.btn-glass:hover{background:rgba(255,255,255,0.08);color:var(--text);border-color:var(--blue2);}
 .btn-gold{
   background:linear-gradient(135deg,#c97a10,var(--gold),#d4911a);
   color:#040200;
-  box-shadow:0 4px 18px rgba(232,160,32,.35),inset 0 1px 0 rgba(255,255,255,.15);
+  box-shadow:0 4px 18px rgba(240,180,41,0.3);
 }
-.btn-gold:hover{box-shadow:0 6px 26px rgba(232,160,32,.5);}
-.btn-ghost{background:var(--bg2);border:1px solid var(--border2);color:var(--text2);}
-.btn-ghost:hover{border-color:var(--gold);color:var(--text);}
-.btn-teal{background:var(--cyandim);border:1px solid rgba(0,200,240,.25);color:var(--cyan);}
-.btn-teal:hover{background:rgba(0,200,240,.16);}
-.btn-green{background:var(--greendim);border:1px solid rgba(0,224,138,.25);color:var(--green);}
-.btn-red{background:var(--reddim);border:1px solid rgba(255,69,96,.25);color:var(--red);}
+.btn-gold:hover{box-shadow:0 6px 26px rgba(240,180,41,0.5);}
+.btn-teal{background:var(--tealdim);border:1px solid rgba(6,214,160,0.25);color:var(--teal);}
+.btn-teal:hover{background:rgba(6,214,160,0.18);}
+.btn-red{background:var(--reddim);border:1px solid rgba(239,68,68,0.25);color:var(--red);}
 .btn-sm{padding:9px 16px;font-size:12px;border-radius:10px;}
 .btn-xs{padding:6px 12px;font-size:11px;border-radius:8px;}
-.spin-icon{width:14px;height:14px;border:2px solid rgba(0,0,0,.25);border-top-color:rgba(0,0,0,.8);border-radius:50%;animation:spin .65s linear infinite;flex-shrink:0;}
-.spin-light{border-color:rgba(255,255,255,.2);border-top-color:var(--gold2);}
+.spin-icon{width:14px;height:14px;border:2px solid rgba(255,255,255,0.2);border-top-color:currentColor;border-radius:50%;animation:spin 0.65s linear infinite;flex-shrink:0;}
 
-/* ---- MAIN APP ---- */
-#mainApp{display:none;min-height:100vh;padding-bottom:28px;}
+/*  MAIN APP  */
+#mainApp{display:none;min-height:100vh;padding-bottom:32px;}
 
-/* ---- HEADER ---- */
+/*  HEADER  */
 .hdr{
   display:flex;align-items:center;justify-content:space-between;
-  padding:13px 16px;position:sticky;top:0;z-index:80;
-  background:rgba(6,10,15,.9);backdrop-filter:blur(22px);
+  padding:0 16px;height:60px;
+  position:sticky;top:0;z-index:80;
+  background:rgba(3,6,13,0.92);backdrop-filter:blur(24px);
   border-bottom:1px solid var(--border);
 }
-.hdr-logo{display:flex;flex-direction:column;gap:1px;}
-.hdr-logo-eyebrow{font-size:8px;color:var(--gold);letter-spacing:2.5px;text-transform:uppercase;font-weight:500;}
+.hdr-logo{display:flex;flex-direction:column;gap:0px;}
+.hdr-logo-sub{
+  font-size:8px;color:var(--blue2);
+  text-transform:uppercase;letter-spacing:2.5px;font-weight:500;
+}
 .hdr-logo-name{
-  font-family:'Syne',sans-serif;font-size:16px;font-weight:800;
-  color:var(--text);letter-spacing:.5px;line-height:1;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:16px;font-weight:700;
+  color:var(--text);letter-spacing:-0.2px;line-height:1;
 }
-.hdr-logo-name span{color:var(--gold2);}
+.hdr-logo-name .pol{color:var(--blue2);}
 .hdr-right{display:flex;align-items:center;gap:8px;}
-.net-pill{
-  display:flex;align-items:center;gap:5px;padding:5px 10px;
-  border-radius:99px;background:rgba(0,224,138,.07);
-  border:1px solid rgba(0,224,138,.2);font-size:10px;font-weight:600;
-  color:var(--green);letter-spacing:.4px;
+.net-badge{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:99px;
+  background:rgba(6,214,160,0.08);border:1px solid rgba(6,214,160,0.2);
+  font-size:10px;font-weight:600;color:var(--teal);letter-spacing:0.4px;
 }
-.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
-.wallet-btn{
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite;}
+.wallet-btn-connected{
   display:flex;align-items:center;gap:6px;
   padding:7px 12px;border-radius:99px;
-  background:var(--golddim);border:1px solid rgba(232,160,32,.3);
-  font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold2);
-  cursor:pointer;transition:all .2s;
+  background:var(--bluedim);border:1px solid rgba(32,129,226,0.25);
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue2);
+  cursor:pointer;transition:all 0.2s;
 }
-.wallet-btn:hover{background:rgba(232,160,32,.18);border-color:var(--gold);}
-.wallet-dot{width:7px;height:7px;border-radius:50%;background:var(--gold2);box-shadow:0 0 6px var(--gold);}
+.wallet-btn-connected:hover{background:rgba(32,129,226,0.18);}
+.wallet-indicator{width:7px;height:7px;border-radius:50%;background:var(--blue2);box-shadow:0 0 6px var(--blue);}
 
-/* ---- ALERT ---- */
+/*  ALERT  */
 .reg-alert{
-  margin:12px 14px 0;border-radius:var(--r2);padding:12px 16px;
-  background:var(--reddim);border:1px solid rgba(255,69,96,.2);
+  margin:12px 14px 0;border-radius:var(--r2);
+  padding:12px 16px;
+  background:var(--reddim);border:1px solid rgba(239,68,68,0.2);
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  animation:fadeUp .3s ease;
+  animation:fadeUp 0.3s ease;
 }
 .reg-alert-txt{font-size:12px;color:var(--red);font-weight:500;}
 
-/* ---- STAT ROW ---- */
-.gstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px 0;}
-.gstat{
+/*  STATS BAR  */
+.stats-bar{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:8px;padding:12px 14px 0;
+}
+.stat-chip{
   background:var(--card);border:1px solid var(--border);
   border-radius:var(--r);padding:11px 8px;text-align:center;
-  animation:fadeUp .4s ease both;
+  animation:fadeUp 0.4s ease both;
 }
-.gstat:nth-child(1){animation-delay:.04s;}
-.gstat:nth-child(2){animation-delay:.08s;}
-.gstat:nth-child(3){animation-delay:.12s;}
-.gstat-v{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--gold2);}
-.gstat-v.c{color:var(--cyan);}
-.gstat-v.g{color:var(--green);}
-.gstat-l{font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:.3px;}
+.stat-chip:nth-child(1){animation-delay:0.04s;}
+.stat-chip:nth-child(2){animation-delay:0.08s;}
+.stat-chip:nth-child(3){animation-delay:0.12s;}
+.stat-chip-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:16px;font-weight:600;color:var(--blue2);
+}
+.stat-chip-val.g{color:var(--teal);}
+.stat-chip-val.p{color:var(--gold);}
+.stat-chip-lbl{font-size:9px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;}
 
-/* ---- REFERRAL HERO (top of dashboard) ---- */
+/*  REFERRAL HERO  */
 .ref-hero{
   margin:12px 14px 0;
-  background:linear-gradient(135deg,rgba(232,160,32,.09),rgba(232,160,32,.03));
-  border:1px solid rgba(232,160,32,.22);border-radius:var(--r2);
-  padding:16px 16px;animation:fadeUp .4s .05s ease both;
+  background:linear-gradient(135deg,rgba(32,129,226,0.08),rgba(32,129,226,0.02));
+  border:1px solid rgba(32,129,226,0.2);
+  border-radius:var(--r3);padding:16px 16px;
   position:relative;overflow:hidden;
+  animation:fadeUp 0.45s 0.05s ease both;
 }
 .ref-hero::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--gold2),transparent);
+  background:linear-gradient(90deg,transparent,var(--blue2),transparent);
 }
 .ref-hero-label{
-  font-family:'Syne',sans-serif;font-size:10px;font-weight:700;
-  color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px;
+  font-size:9px;font-weight:700;color:var(--blue2);
+  text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px;
+  display:flex;align-items:center;gap:6px;
 }
+.ref-hero-label::before{content:'';display:inline-block;width:16px;height:1px;background:var(--blue);}
 .ref-row{display:flex;align-items:center;gap:8px;}
 .ref-text{
-  flex:1;background:rgba(0,0,0,.3);border:1px solid var(--border);
+  flex:1;min-width:0;
+  background:rgba(0,0,0,0.3);border:1px solid var(--border);
   border-radius:var(--r);padding:9px 12px;
-  font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold2);
-  word-break:break-all;line-height:1.4;min-width:0;
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue2);
+  word-break:break-all;line-height:1.5;
 }
-.ref-copy{
+.ref-copy-btn{
   flex-shrink:0;padding:9px 14px;border-radius:var(--r);
-  background:linear-gradient(135deg,var(--gold),#d4911a);
-  color:#040200;font-family:'Outfit',sans-serif;
-  font-size:12px;font-weight:700;cursor:pointer;
-  transition:all .2s;border:none;letter-spacing:.3px;
+  background:var(--blue);color:#fff;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all 0.2s;border:none;letter-spacing:0.2px;
+  box-shadow:0 2px 10px rgba(32,129,226,0.3);
 }
-.ref-copy:hover{box-shadow:0 4px 14px rgba(232,160,32,.4);}
-.ref-copy:active{transform:scale(.96);}
+.ref-copy-btn:hover{background:#1a6fd4;box-shadow:0 4px 16px rgba(32,129,226,0.5);}
+.ref-copy-btn:active{transform:scale(0.96);}
 
-/* ---- ROI HERO ---- */
+/*  ROI HERO  */
 .roi-hero{
   margin:10px 14px 0;
-  background:linear-gradient(135deg,rgba(232,160,32,.08),rgba(232,160,32,.02));
-  border:1px solid rgba(232,160,32,.2);border-radius:var(--r2);
-  padding:20px 18px;animation:fadeUp .4s .1s ease both;
+  background:linear-gradient(135deg,rgba(240,180,41,0.08),rgba(240,180,41,0.02));
+  border:1px solid rgba(240,180,41,0.2);
+  border-radius:var(--r3);padding:20px 18px;
   position:relative;overflow:hidden;
+  animation:fadeUp 0.45s 0.1s ease both;
 }
 .roi-hero::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--gold),transparent);
 }
 .roi-hero::after{
-  content:'';position:absolute;top:-60px;right:-60px;
-  width:160px;height:160px;border-radius:50%;
-  background:radial-gradient(circle,rgba(232,160,32,.1) 0%,transparent 70%);
+  content:'';position:absolute;top:-50px;right:-50px;
+  width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle,rgba(240,180,41,0.1) 0%,transparent 70%);
   pointer-events:none;
 }
-.roi-eyebrow{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:7px;}
-.roi-num{
-  font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;
-  color:var(--gold2);animation:roiGlow 3.5s ease-in-out infinite;letter-spacing:-.5px;
+.roi-label{
+  font-size:9px;font-weight:700;color:var(--gold);
+  text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.roi-label::before{content:'';display:inline-block;width:16px;height:1px;background:var(--gold);}
+.roi-amount{
+  font-family:'JetBrains Mono',monospace;
+  font-size:26px;font-weight:600;
+  animation:roiPulse 3.5s ease-in-out infinite;
+  letter-spacing:-0.5px;word-break:break-all;
 }
 .roi-sub{font-size:11px;color:var(--text3);margin-top:5px;margin-bottom:16px;}
-.roi-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.roi-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
-/* ---- DEPOSIT ON DASHBOARD ---- */
-.deposit-section{
+/*  DEPOSIT SECTION  */
+.deposit-box{
   margin:10px 14px 0;
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r2);overflow:hidden;
-  animation:fadeUp .4s .15s ease both;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r3);overflow:hidden;
+  animation:fadeUp 0.45s 0.15s ease both;
 }
-.deposit-head{
+.deposit-box-top{
   padding:14px 16px;
-  background:linear-gradient(90deg,rgba(232,160,32,.07),transparent);
+  background:linear-gradient(90deg,rgba(32,129,226,0.06),transparent);
   border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;gap:10px;
 }
-.deposit-head-left{display:flex;align-items:center;gap:10px;}
-.deposit-icon-wrap{
-  width:34px;height:34px;border-radius:9px;
-  background:var(--golddim);border:1px solid rgba(232,160,32,.25);
-  display:flex;align-items:center;justify-content:center;font-size:16px;
+.deposit-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--bluedim);border:1px solid rgba(32,129,226,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex-shrink:0;
 }
-.deposit-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--gold2);}
-.deposit-sub{font-size:10px;color:var(--text3);margin-top:2px;}
+.deposit-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13px;font-weight:600;color:var(--text);letter-spacing:-0.1px;
+}
+.deposit-subtitle{font-size:10px;color:var(--text3);margin-top:2px;}
 .deposit-body{padding:14px 16px 16px;}
-.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
+.tier-row{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:14px;}
 .tier{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r);padding:8px 6px;text-align:center;
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+  border-radius:8px;padding:8px 4px;text-align:center;
+  transition:border-color 0.2s;
 }
-.tier-r{font-size:9px;color:var(--text3);margin-bottom:3px;}
-.tier-v{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--gold2);}
-.dep-input-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;}
-.dep-input-wrap{position:relative;}
+.tier:hover{border-color:var(--border2);}
+.tier-range{font-size:8px;color:var(--text3);margin-bottom:2px;}
+.tier-rate{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;font-weight:600;color:var(--blue2);
+}
+.dep-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;}
+.dep-wrap{position:relative;}
 .dep-input{
-  width:100%;background:var(--bg2);border:1px solid var(--border2);
-  border-radius:var(--r);padding:12px 42px 12px 14px;
-  color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:15px;
-  outline:none;transition:border-color .2s;-webkit-appearance:none;
+  width:100%;background:var(--bg2);
+  border:1px solid var(--border2);border-radius:var(--r);
+  padding:12px 44px 12px 14px;
+  color:var(--text);font-family:'JetBrains Mono',monospace;
+  font-size:15px;outline:none;transition:border-color 0.2s;
+  -webkit-appearance:none;
 }
-.dep-input:focus{border-color:var(--gold);}
+.dep-input:focus{border-color:var(--blue);}
 .dep-input::placeholder{color:var(--text3);}
 .dep-input[type=number]::-webkit-inner-spin-button{display:none;}
-.dep-currency{
-  position:absolute;right:12px;top:50%;transform:translateY(-50%);
-  font-size:11px;color:var(--gold);font-weight:600;
+.dep-label{
+  position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  font-size:11px;color:var(--blue2);font-weight:600;letter-spacing:0.2px;
 }
-.dep-preview{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--cyan);margin-top:6px;}
+.dep-preview{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--teal);margin-top:6px;min-height:16px;
+}
 
-/* ---- NAV TABS ---- */
-.nav-wrap{overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none;}
-.nav-wrap::-webkit-scrollbar{display:none;}
-.nav-tabs{display:flex;gap:5px;width:max-content;}
-.nav-tab{
+/*  NAV TABS  */
+.tab-nav{overflow-x:auto;scrollbar-width:none;padding:12px 14px 4px;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-nav-inner{display:flex;gap:5px;width:max-content;}
+.t{
   padding:8px 15px;border-radius:99px;
   border:1px solid var(--border);background:transparent;
-  color:var(--text3);font-family:'Outfit',sans-serif;
-  font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;
-  white-space:nowrap;letter-spacing:.2px;
+  color:var(--text3);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;font-weight:500;cursor:pointer;
+  transition:all 0.2s;white-space:nowrap;
 }
-.nav-tab.active{
-  background:var(--golddim);border-color:rgba(232,160,32,.35);
-  color:var(--gold2);font-weight:600;
+.t.on{
+  background:var(--bluedim);border-color:rgba(32,129,226,0.35);
+  color:var(--blue2);font-weight:600;
 }
-.nav-tab:hover:not(.active){color:var(--text);border-color:var(--border2);}
+.t:hover:not(.on){color:var(--text);border-color:var(--border2);}
 
-/* ---- TAB PANELS ---- */
-.tab-panel{display:none;animation:fadeUp .3s ease;}
-.tab-panel.active{display:block;}
-.tab-inner{padding:10px 14px 0;}
+/*  TAB PANELS  */
+.tp{display:none;animation:fadeUp 0.3s ease;}
+.tp.on{display:block;}
+.tp-inner{padding:10px 14px 0;}
 
-/* ---- CARD ---- */
-.card{
+/*  GLASS CARD  */
+.gc{
   background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r2);margin-bottom:12px;overflow:hidden;
+  border-radius:var(--r3);margin-bottom:12px;overflow:hidden;
+  transition:border-color 0.3s;
 }
-.card-hd{
+.gc:hover{border-color:var(--border2);}
+.gc-hd{
   padding:14px 16px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:9px;
-  background:linear-gradient(90deg,rgba(232,160,32,.05),transparent);
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(90deg,rgba(32,129,226,0.04),transparent);
 }
-.card-hd-bar{width:3px;height:14px;background:linear-gradient(180deg,var(--gold),var(--gold2));border-radius:2px;flex-shrink:0;}
-.card-hd-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--gold2);letter-spacing:.4px;}
-.card-bd{padding:14px 16px 16px;}
-
-/* ---- STAT GRID ---- */
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
-.si{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 13px;transition:border-color .2s;}
-.si:hover{border-color:var(--border2);}
-.sl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
-.sv{font-size:14px;font-weight:600;color:var(--text);}
-.sv.g{color:var(--gold2);}
-.sv.tl{color:var(--cyan);}
-.sv.gr{color:var(--green);}
-.sv.big{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;}
-
-/* ---- PROGRESS ---- */
-.prog-track{height:5px;background:rgba(0,0,0,.4);border-radius:99px;overflow:hidden;margin-top:7px;}
-.prog-fill{
-  height:100%;border-radius:99px;
-  background:linear-gradient(90deg,#7a4a08,var(--gold),var(--gold2));
-  transition:width 1.2s cubic-bezier(.25,.46,.45,.94);
-  box-shadow:0 0 8px rgba(232,160,32,.5);
+.gc-hd-bar{width:3px;height:14px;background:linear-gradient(180deg,var(--blue),var(--blue2));border-radius:2px;flex-shrink:0;}
+.gc-hd-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:12px;font-weight:600;color:var(--text);letter-spacing:-0.1px;
 }
-.prog-meta{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);margin-top:3px;}
+.gc-body{padding:14px 16px 16px;}
 
-/* ---- INCOME CHIPS ---- */
+/*  DATA GRID  */
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.dg3{grid-template-columns:repeat(3,1fr);}
+.di{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 13px;transition:border-color 0.2s;
+}
+.di:hover{border-color:var(--border2);}
+.dl{
+  font-size:9px;color:var(--text3);
+  text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;
+}
+.dv{font-size:14px;font-weight:600;color:var(--text);}
+.dv.b{color:var(--blue2);}
+.dv.g{color:var(--teal);}
+.dv.y{color:var(--gold);}
+.dv.big{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;}
+.dv.mono{font-family:'JetBrains Mono',monospace;}
+
+/*  PROGRESS  */
+.prog{height:4px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;margin-top:7px;}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--blue2));transition:width 1.2s cubic-bezier(0.25,0.46,0.45,0.94);box-shadow:0 0 8px rgba(32,129,226,0.4);}
+.prog-meta{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);margin-top:3px;}
+
+/*  INCOME CHIPS  */
 .ic-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.ic{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 13px;border-left:3px solid var(--gold);}
-.ic.c{border-left-color:var(--cyan);}
-.ic.g{border-left-color:var(--green);}
-.ic.o{border-left-color:var(--orange);}
+.ic{
+  background:rgba(255,255,255,0.02);border:1px solid var(--border);
+  border-radius:var(--r);padding:12px 12px;border-left:2px solid var(--blue);
+}
+.ic.g{border-left-color:var(--teal);}
+.ic.y{border-left-color:var(--gold);}
 .ic.p{border-left-color:var(--purple);}
 .ic.r{border-left-color:var(--red);}
-.ic-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.ic.o{border-left-color:#f97316;}
+.ic-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
 .ic-v{font-size:13px;font-weight:600;color:var(--text);}
 
-/* ---- LEVEL GRID ---- */
-.lv-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.lv-box{border-radius:8px;padding:8px 2px;text-align:center;background:var(--bg2);border:1px solid var(--border);}
-.lv-box.on{background:var(--golddim);border-color:rgba(232,160,32,.35);box-shadow:0 2px 10px rgba(232,160,32,.12);}
-.lv-n{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text3);}
-.lv-box.on .lv-n{color:var(--gold2);}
-.lv-p{font-size:9px;color:var(--text3);margin-top:2px;}
-.lv-box.on .lv-p{color:var(--gold);}
-.lv-ck{font-size:9px;color:var(--green);margin-top:1px;}
+/*  LEVEL TRACK  */
+.lv-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.lv{
+  border-radius:8px;padding:8px 2px;text-align:center;
+  background:rgba(255,255,255,0.02);border:1px solid var(--border);
+  transition:all 0.25s;
+}
+.lv.on{
+  background:var(--bluedim);border-color:rgba(32,129,226,0.3);
+  box-shadow:0 2px 12px rgba(32,129,226,0.1);
+}
+.lv-n{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;color:var(--text3);}
+.lv.on .lv-n{color:var(--blue2);}
+.lv-p{font-size:8px;color:var(--text3);margin-top:2px;}
+.lv.on .lv-p{color:var(--blue);}
+.lv-ck{font-size:9px;color:var(--teal);margin-top:1px;}
 
-/* ---- BOOSTER ---- */
+/*  BOOSTER  */
 .bst{
-  background:rgba(0,200,240,.06);border:1px solid rgba(0,200,240,.18);
+  background:rgba(6,214,160,0.05);border:1px solid rgba(6,214,160,0.15);
   border-radius:var(--r);padding:14px;
   display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
 }
-.bl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
-.bv{font-size:13px;font-weight:600;color:var(--cyan);}
+.bl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.bv{font-size:13px;font-weight:600;color:var(--teal);}
 
-/* ---- PACKAGES ---- */
+/*  PACKAGES  */
 .pkg-list{display:flex;flex-direction:column;gap:9px;}
-.pkg-item{
-  background:var(--bg2);border:1px solid var(--border);
+.pkg{
+  background:rgba(255,255,255,0.02);border:1px solid var(--border);
   border-radius:var(--r2);padding:14px 16px;
   display:flex;justify-content:space-between;align-items:center;
-  position:relative;overflow:hidden;transition:border-color .2s;
+  position:relative;overflow:hidden;transition:border-color 0.2s;
 }
-.pkg-item:hover{border-color:var(--border2);}
-.pkg-item::before{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),var(--gold2));}
+.pkg:hover{border-color:var(--border2);}
+.pkg::before{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--blue),var(--blue2));}
 .pkg-l{padding-left:9px;}
-.pkg-id{font-size:9px;color:var(--text3);margin-bottom:3px;letter-spacing:.5px;text-transform:uppercase;}
-.pkg-amt{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--gold2);}
+.pkg-id{font-size:9px;color:var(--text3);margin-bottom:3px;letter-spacing:0.5px;text-transform:uppercase;}
+.pkg-amt{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--blue2);}
 .pkg-date{font-size:10px;color:var(--text3);margin-top:3px;}
 .pkg-r{text-align:right;}
-.pkg-rate{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--green);}
+.pkg-rate{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--teal);}
 .pkg-s{font-size:10px;color:var(--text3);margin-top:3px;}
 
-/* ---- TEAM LEGS ---- */
+/*  TEAM LEGS  */
 .legs{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .leg{border-radius:var(--r2);padding:18px;text-align:center;}
-.leg.str{background:rgba(0,224,138,.07);border:1px solid rgba(0,224,138,.2);}
-.leg.wk{background:rgba(0,200,240,.07);border:1px solid rgba(0,200,240,.2);}
-.leg-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;}
-.leg.str .leg-num{color:var(--green);}
-.leg.wk .leg-num{color:var(--cyan);}
+.leg.str{background:rgba(6,214,160,0.06);border:1px solid rgba(6,214,160,0.18);}
+.leg.wk{background:rgba(32,129,226,0.06);border:1px solid rgba(32,129,226,0.18);}
+.leg-num{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;}
+.leg.str .leg-num{color:var(--teal);}
+.leg.wk .leg-num{color:var(--blue2);}
 .leg-lbl{font-size:11px;color:var(--text3);margin-top:5px;}
 
-/* ---- TABLE ---- */
+/*  TABLE  */
 .tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);}
 table{width:100%;border-collapse:collapse;min-width:300px;}
-thead th{background:var(--bg2);padding:10px 12px;text-align:left;font-family:'Syne',sans-serif;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;}
+thead th{
+  background:rgba(255,255,255,0.02);padding:10px 12px;text-align:left;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;color:var(--text3);
+  text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;font-weight:600;
+}
 tbody td{padding:10px 12px;border-top:1px solid var(--border);font-size:12px;color:var(--text);white-space:nowrap;}
-tbody tr:hover td{background:rgba(232,160,32,.03);}
+tbody tr:hover td{background:rgba(32,129,226,0.03);}
 .bdg{padding:3px 8px;border-radius:99px;font-size:10px;font-weight:600;}
-.bdg-g{background:rgba(232,160,32,.15);color:var(--gold2);}
-.bdg-t{background:rgba(0,200,240,.12);color:var(--cyan);}
-.bdg-p{background:rgba(155,109,255,.15);color:var(--purple);}
-.bdg-o{background:rgba(255,140,66,.15);color:var(--orange);}
-.bdg-r{background:rgba(255,69,96,.12);color:var(--red);}
-.bdg-gr{background:rgba(0,224,138,.12);color:var(--green);}
+.bdg-b{background:rgba(32,129,226,0.15);color:var(--blue2);}
+.bdg-g{background:rgba(6,214,160,0.12);color:var(--teal);}
+.bdg-y{background:rgba(240,180,41,0.15);color:var(--gold);}
+.bdg-p{background:rgba(139,92,246,0.15);color:var(--purple);}
+.bdg-o{background:rgba(249,115,22,0.15);color:#f97316;}
+.bdg-r{background:rgba(239,68,68,0.12);color:var(--red);}
 
-/* ---- INCOME FILTERS ---- */
+/*  INCOME FILTERS  */
 .ifilters{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;}
 .ifilters::-webkit-scrollbar{display:none;}
-.ifbtn{flex-shrink:0;padding:7px 13px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;}
-.ifbtn.on{background:var(--golddim);border-color:rgba(232,160,32,.35);color:var(--gold2);}
+.ifbtn{
+  flex-shrink:0;padding:7px 13px;border-radius:99px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text3);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.2s;
+}
+.ifbtn.on{background:var(--bluedim);border-color:rgba(32,129,226,0.3);color:var(--blue2);}
 
-/* ---- FORM ---- */
+/*  FORM  */
 .fg{margin-bottom:13px;}
-.fl{font-family:'Syne',sans-serif;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:7px;display:block;}
+.fl{
+  font-size:9px;color:var(--text3);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:7px;display:block;font-weight:600;
+}
 .fi{
   width:100%;background:var(--bg2);border:1px solid var(--border2);
   border-radius:var(--r);padding:13px 14px;color:var(--text);
-  font-family:'IBM Plex Mono',monospace;font-size:14px;
-  outline:none;transition:border-color .2s;-webkit-appearance:none;
+  font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;
+  transition:border-color 0.2s;-webkit-appearance:none;
 }
-.fi:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(232,160,32,.1);}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(32,129,226,0.08);}
 .fi::placeholder{color:var(--text3);}
 .fi[type=number]::-webkit-inner-spin-button{display:none;}
 .fh{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5;}
 .fprev{
-  background:var(--greendim);border:1px solid rgba(0,224,138,.2);
+  background:rgba(6,214,160,0.07);border:1px solid rgba(6,214,160,0.18);
   border-radius:var(--r);padding:11px 13px;margin-top:9px;
-  font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--green);
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);
 }
 
-/* ---- MODAL ---- */
+/*  MODAL  */
 .modal-ov{
   position:fixed;inset:0;z-index:200;
-  background:rgba(0,0,0,.8);backdrop-filter:blur(8px);
+  background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);
   display:flex;align-items:flex-end;justify-content:center;
-  opacity:0;pointer-events:none;transition:opacity .26s;
+  opacity:0;pointer-events:none;transition:opacity 0.25s;
 }
 .modal-ov.open{opacity:1;pointer-events:all;}
 .modal-sh{
   width:100%;max-width:480px;
-  background:var(--card2);
+  background:#080f1c;
   border-radius:24px 24px 0 0;
   border-top:1px solid var(--border2);
   padding:0 0 max(24px,env(safe-area-inset-bottom));
-  transform:translateY(100%);transition:transform .36s cubic-bezier(.32,.72,0,1);
-  max-height:93vh;overflow-y:auto;
-  position:relative;
+  transform:translateY(100%);transition:transform 0.36s cubic-bezier(0.32,0.72,0,1);
+  max-height:93vh;overflow-y:auto;position:relative;
 }
 .modal-sh::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--gold2),transparent);
+  background:linear-gradient(90deg,transparent,var(--blue2),transparent);
 }
 .modal-ov.open .modal-sh{transform:translateY(0);}
-.modal-handle{width:38px;height:4px;border-radius:99px;background:var(--border2);margin:14px auto 0;}
-.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text);padding:16px 20px 4px;}
+.modal-handle{width:36px;height:4px;border-radius:99px;background:var(--border2);margin:14px auto 0;}
+.modal-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:18px;font-weight:600;color:var(--text);
+  padding:16px 20px 4px;letter-spacing:-0.2px;
+}
 .modal-body{padding:14px 20px 0;}
 
-/* ---- SUCCESS ---- */
+/*  SUCCESS POPUP  */
 .succ-ov{
   position:fixed;inset:0;z-index:400;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.85);backdrop-filter:blur(10px);
-  opacity:0;pointer-events:none;transition:opacity .22s;padding:20px;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);
+  opacity:0;pointer-events:none;transition:opacity 0.22s;padding:20px;
 }
 .succ-ov.show{opacity:1;pointer-events:all;}
 .succ-card{
-  background:var(--card2);border:1px solid var(--border2);
-  border-radius:24px;padding:38px 28px;text-align:center;
-  width:100%;max-width:310px;
-  animation:bounce .5s cubic-bezier(.34,1.56,.64,1);
+  background:#080f1c;border:1px solid var(--border2);
+  border-radius:24px;padding:40px 30px;text-align:center;
+  width:100%;max-width:320px;
+  animation:bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
   position:relative;overflow:hidden;
 }
 .succ-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--gold2),transparent);
+  background:linear-gradient(90deg,transparent,var(--blue2),transparent);
 }
-.succ-icon{font-size:52px;margin-bottom:13px;display:block;}
-.succ-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:7px;}
+.succ-icon{font-size:52px;margin-bottom:14px;display:block;}
+.succ-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;}
 .succ-msg{color:var(--text2);font-size:13px;line-height:1.6;margin-bottom:24px;}
 
-/* ---- TOAST ---- */
-#toastWrap{position:fixed;bottom:18px;left:12px;right:12px;z-index:600;display:flex;flex-direction:column;gap:7px;pointer-events:none;align-items:stretch;}
-.toast{
-  background:var(--card2);border-radius:var(--r);
-  padding:13px 15px;border-left:2px solid var(--gold);
-  box-shadow:var(--shadow);font-size:13px;color:var(--text);
-  line-height:1.4;animation:toastUp .3s cubic-bezier(.34,1.56,.64,1);
-  pointer-events:all;border:1px solid var(--border2);border-left:2px solid var(--gold);
+/*  TOAST  */
+#toastWrap{
+  position:fixed;bottom:18px;left:12px;right:12px;z-index:600;
+  display:flex;flex-direction:column;gap:7px;pointer-events:none;
 }
-.toast.success{border-left-color:var(--green);}
+.toast{
+  background:#0c1628;border:1px solid var(--border2);
+  border-left:2px solid var(--blue2);border-radius:var(--r2);
+  padding:13px 15px;font-size:13px;color:var(--text);line-height:1.4;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events:all;
+}
+.toast.success{border-left-color:var(--teal);}
 .toast.error{border-left-color:var(--red);}
-.toast.info{border-left-color:var(--cyan);}
+.toast.info{border-left-color:var(--blue2);}
 
-/* ---- MISC ---- */
+/*  MISC  */
 .muted{color:var(--text3);}
-.mono{font-family:'IBM Plex Mono',monospace;}
+.mono{font-family:'JetBrains Mono',monospace;}
 .empty{text-align:center;padding:30px 20px;color:var(--text3);font-size:13px;}
-.empty-icon{font-size:30px;margin-bottom:8px;}
-.info-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.info-row{display:flex;align-items:flex-start;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
 .info-row:last-child{border-bottom:none;}
-.info-lbl{font-size:12px;color:var(--text2);}
-.info-val{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);}
+.info-lbl{font-size:12px;color:var(--text2);flex-shrink:0;}
+.info-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);text-align:right;word-break:break-all;max-width:65%;}
 </style>
 </head>
 <body>
 
-<!-- CONNECT -->
+<!--  CONNECT  -->
 <div id="connectScreen">
-<div class="c-card">
-  <div class="c-logo-ring">&#128179;</div>
-  <div class="c-brand">Billion <span>Pol</span> ROI</div>
-  <div class="c-sub">Native POL staking on Polygon Mainnet. Earn daily ROI with referral commissions and rank bonuses.</div>
-  <div class="c-stats">
-    <div class="cs"><div class="cs-v" id="csTU">--</div><div class="cs-l">Total Users</div></div>
-    <div class="cs"><div class="cs-v" id="csTP">--</div><div class="cs-l">Packages</div></div>
-    <div class="cs"><div class="cs-v" style="color:var(--cyan);" id="csOW">--</div><div class="cs-l">Ownership</div></div>
-    <div class="cs"><div class="cs-v" style="color:var(--green);" id="csTW">--</div><div class="cs-l">Withdrawals</div></div>
+<div class="connect-outer">
+<div class="connect-card">
+  <div class="connect-logo">
+    <svg viewBox="0 0 38 38" fill="none">
+      <circle cx="19" cy="19" r="17" stroke="rgba(79,163,247,0.5)" stroke-width="1.5"/>
+      <polygon points="19,6 30,12 30,26 19,32 8,26 8,12" fill="rgba(32,129,226,0.15)" stroke="#4fa3f7" stroke-width="1.2"/>
+      <text x="19" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#4fa3f7" font-family="sans-serif">P</text>
+    </svg>
   </div>
-  <button class="btn btn-gold btn-block" id="connectBtn" onclick="connectWallet()">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="7" width="20" height="15" rx="2.5"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/></svg>
-    Connect MetaMask
+  <div class="connect-brand">Billion <span class="pol">Pol</span> ROI</div>
+  <div class="connect-tagline">Native POL staking on Polygon Mainnet. Earn daily ROI with referral commissions and rank bonuses.</div>
+  <div class="connect-stats">
+    <div class="cs-item"><div class="cs-val" id="csTU">--</div><div class="cs-lbl">Total Users</div></div>
+    <div class="cs-item"><div class="cs-val" id="csTP">--</div><div class="cs-lbl">Packages</div></div>
+    <div class="cs-item"><div class="cs-val" style="color:var(--teal);" id="csOW">--</div><div class="cs-lbl">Ownership</div></div>
+    <div class="cs-item"><div class="cs-val" style="color:var(--gold);" id="csTW">--</div><div class="cs-lbl">Withdrawals</div></div>
+  </div>
+  <div class="connect-divider">
+    <div class="connect-divider-line"></div>
+    <span class="connect-divider-text">Polygon Mainnet &middot; Chain 137</span>
+    <div class="connect-divider-line"></div>
+  </div>
+  <button class="btn btn-blue btn-block" id="connectBtn" onclick="connectWallet()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2.5"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/></svg>
+    Connect Wallet
   </button>
-  <p style="text-align:center;font-size:10px;color:var(--text3);margin-top:13px;letter-spacing:.4px;">Polygon Mainnet &nbsp;&middot;&nbsp; Chain ID 137 &nbsp;&middot;&nbsp; Native POL</p>
+</div>
 </div>
 </div>
 
-<!-- MAIN APP -->
+<!--  MAIN APP  -->
 <div id="mainApp">
 
 <div class="hdr">
   <div class="hdr-logo">
-    <div class="hdr-logo-eyebrow">Premium Protocol</div>
-    <div class="hdr-logo-name">Billion <span>Pol</span> ROI</div>
+    <div class="hdr-logo-sub">Native POL Staking</div>
+    <div class="hdr-logo-name">Billion <span class="pol">Pol</span> ROI</div>
   </div>
   <div class="hdr-right">
-    <div class="net-pill"><span class="pulse-dot"></span>Polygon</div>
-    <div class="wallet-btn" onclick="openModal('mWallet')">
-      <span class="wallet-dot"></span>
+    <div class="net-badge"><span class="pulse-dot"></span>Polygon</div>
+    <div class="wallet-btn-connected" onclick="openModal('mWallet')" id="walletChip">
+      <span class="wallet-indicator"></span>
       <span id="hdrAddr">--</span>
     </div>
   </div>
 </div>
 
-<!-- Register Alert -->
+<!-- Alert -->
 <div id="regAlert" class="reg-alert" style="display:none;">
   <span class="reg-alert-txt">&#9888; Wallet not registered &mdash; register to start earning</span>
   <button class="btn btn-red btn-xs" onclick="openModal('mRegister')">Register</button>
 </div>
 
-<!-- Global Stats -->
-<div class="gstats">
-  <div class="gstat"><div class="gstat-v c" id="gU">--</div><div class="gstat-l">Total Users</div></div>
-  <div class="gstat"><div class="gstat-v" id="gP">--</div><div class="gstat-l">Packages</div></div>
-  <div class="gstat"><div class="gstat-v g" id="gW">--</div><div class="gstat-l">Withdrawals</div></div>
+<!-- Stats Bar -->
+<div class="stats-bar">
+  <div class="stat-chip"><div class="stat-chip-val b" id="gU">--</div><div class="stat-chip-lbl">Users</div></div>
+  <div class="stat-chip"><div class="stat-chip-val" id="gP">--</div><div class="stat-chip-lbl">Packages</div></div>
+  <div class="stat-chip"><div class="stat-chip-val g" id="gW">--</div><div class="stat-chip-lbl">Withdrawals</div></div>
 </div>
 
-<!-- Referral Hero - TOP of dashboard -->
+<!-- Referral Link at Top -->
 <div class="ref-hero">
   <div class="ref-hero-label">My Referral Link</div>
   <div class="ref-row">
-    <div class="ref-text" id="refLinkText">Connect wallet to generate your referral link</div>
-    <button class="ref-copy" onclick="copyRef()">Copy</button>
+    <div class="ref-text" id="refLinkText">Connect your wallet to generate your personal referral link</div>
+    <button class="ref-copy-btn" onclick="copyRef()">Copy</button>
   </div>
 </div>
 
 <!-- ROI Hero -->
 <div class="roi-hero">
-  <div class="roi-eyebrow">Live Pending ROI</div>
-  <div class="roi-num" id="pendingROI">0.000000 POL</div>
-  <div class="roi-sub">Accumulates every second &nbsp;&middot;&nbsp; Claim any time</div>
-  <div class="roi-btns">
+  <div class="roi-label">Live Pending ROI</div>
+  <div class="roi-amount" id="pendingROI">0.000000 POL</div>
+  <div class="roi-sub">Accumulates every second &middot; Claim any time</div>
+  <div class="roi-actions">
     <button class="btn btn-gold" id="claimBtn" onclick="doClaimROI()">
       <span id="claimSpin" style="display:none;" class="spin-icon"></span>Claim ROI
     </button>
-    <button class="btn btn-ghost" onclick="openModal('mCompound')">Compound</button>
+    <button class="btn btn-glass" onclick="openModal('mCompound')">Compound</button>
   </div>
 </div>
 
-<!-- DEPOSIT on Dashboard -->
-<div class="deposit-section">
-  <div class="deposit-head">
-    <div class="deposit-head-left">
-      <div class="deposit-icon-wrap">&#9650;</div>
-      <div>
-        <div class="deposit-title">Stake POL &mdash; Buy Package</div>
-        <div class="deposit-sub">Earn daily ROI per second on your stake</div>
-      </div>
+<!-- Deposit on Dashboard -->
+<div class="deposit-box">
+  <div class="deposit-box-top">
+    <div class="deposit-icon">&#9650;</div>
+    <div>
+      <div class="deposit-title">Stake POL &mdash; Buy Package</div>
+      <div class="deposit-subtitle">Earn daily ROI per second on your staked amount</div>
     </div>
   </div>
   <div class="deposit-body">
-    <div class="tier-grid">
-      <div class="tier"><div class="tier-r">10&ndash;500</div><div class="tier-v">1.0%</div></div>
-      <div class="tier"><div class="tier-r">501&ndash;3K</div><div class="tier-v">1.2%</div></div>
-      <div class="tier"><div class="tier-r">3K&ndash;8K</div><div class="tier-v">1.5%</div></div>
-      <div class="tier"><div class="tier-r">8K&ndash;15K</div><div class="tier-v">1.8%</div></div>
-      <div class="tier"><div class="tier-r">15K&ndash;20K</div><div class="tier-v">2.0%</div></div>
-      <div class="tier"><div class="tier-r">&gt;20K POL</div><div class="tier-v">2.5%</div></div>
+    <div class="tier-row">
+      <div class="tier"><div class="tier-range">10&ndash;500</div><div class="tier-rate">1.0%</div></div>
+      <div class="tier"><div class="tier-range">501&ndash;3K</div><div class="tier-rate">1.2%</div></div>
+      <div class="tier"><div class="tier-range">3K&ndash;8K</div><div class="tier-rate">1.5%</div></div>
+      <div class="tier"><div class="tier-range">8K&ndash;15K</div><div class="tier-rate">1.8%</div></div>
+      <div class="tier"><div class="tier-range">15K&ndash;20K</div><div class="tier-rate">2.0%</div></div>
+      <div class="tier"><div class="tier-range">&gt;20K</div><div class="tier-rate">2.5%</div></div>
     </div>
-    <div class="dep-input-row">
-      <div class="dep-input-wrap">
-        <input class="dep-input" id="dashBuyAmt" type="number" min="10" step="1" placeholder="Min 10" oninput="updateDashBuyPrev()"/>
-        <span class="dep-currency">POL</span>
+    <div class="dep-row">
+      <div class="dep-wrap">
+        <input class="dep-input" id="dashBuyAmt" type="number" min="10" step="1" placeholder="Min 10" oninput="calcBuyPreview()"/>
+        <span class="dep-label">POL</span>
       </div>
-      <button class="btn btn-gold btn-sm" id="dashBuyBtn" onclick="doDashBuy()">
-        <span id="dashBuySpin" style="display:none;" class="spin-icon"></span>Stake Now
+      <button class="btn btn-blue btn-sm" id="dashBuyBtn" onclick="doDashBuy()">
+        <span id="dashBuySpin" style="display:none;" class="spin-icon"></span>Stake
       </button>
     </div>
     <div class="dep-preview" id="dashBuyPrev"></div>
@@ -602,56 +746,56 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
 </div>
 
 <!-- Nav Tabs -->
-<div class="nav-wrap">
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab('dashboard',this)">Dashboard</button>
-    <button class="nav-tab" onclick="switchTab('packages',this)">Packages</button>
-    <button class="nav-tab" onclick="switchTab('team',this)">Team</button>
-    <button class="nav-tab" onclick="switchTab('income',this)">Income</button>
-    <button class="nav-tab" onclick="switchTab('history',this)">History</button>
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="t on" onclick="switchTab('dashboard',this)">Dashboard</button>
+    <button class="t" onclick="switchTab('packages',this)">Packages</button>
+    <button class="t" onclick="switchTab('team',this)">Team</button>
+    <button class="t" onclick="switchTab('income',this)">Income</button>
+    <button class="t" onclick="switchTab('history',this)">History</button>
   </div>
 </div>
 
-<!-- DASHBOARD TAB -->
-<div class="tab-panel active" id="tab-dashboard">
-<div class="tab-inner">
+<!--  DASHBOARD TAB  -->
+<div class="tp on" id="tp-dashboard">
+<div class="tp-inner">
 
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Portfolio</div></div>
-    <div class="card-bd">
-      <div class="sg" style="margin-bottom:12px;">
-        <div class="si"><div class="sl">Wallet Balance</div><div class="sv big g" id="wBal">--</div></div>
-        <div class="si"><div class="sl">Withdrawable</div><div class="sv big gr" id="uUnpaid">--</div></div>
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Portfolio</div></div>
+    <div class="gc-body">
+      <div class="dg" style="margin-bottom:12px;">
+        <div class="di"><div class="dl">Wallet Balance</div><div class="dv big b" id="wBal">--</div></div>
+        <div class="di"><div class="dl">Withdrawable</div><div class="dv big g" id="uUnpaid">--</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <button class="btn btn-green btn-sm" onclick="openModal('mWithdraw')">Withdraw</button>
-        <button class="btn btn-ghost btn-sm" onclick="openModal('mCompound')">Compound</button>
+        <button class="btn btn-teal btn-sm" onclick="openModal('mWithdraw')">Withdraw</button>
+        <button class="btn btn-glass btn-sm" onclick="openModal('mCompound')">Compound</button>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Investment</div></div>
-    <div class="card-bd">
-      <div class="sg" style="margin-bottom:11px;">
-        <div class="si"><div class="sl">Total Invested</div><div class="sv g" id="uSelf">--</div></div>
-        <div class="si"><div class="sl">Total Earned</div><div class="sv gr" id="uTotInc">--</div></div>
-        <div class="si"><div class="sl">Cap Type</div><div class="sv" id="uCap">--</div></div>
-        <div class="si"><div class="sl">User ID</div><div class="sv mono" id="uId">--</div></div>
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Investment</div></div>
+    <div class="gc-body">
+      <div class="dg" style="margin-bottom:11px;">
+        <div class="di"><div class="dl">Total Invested</div><div class="dv b" id="uSelf">--</div></div>
+        <div class="di"><div class="dl">Total Earned</div><div class="dv g" id="uTotInc">--</div></div>
+        <div class="di"><div class="dl">Cap Type</div><div class="dv" id="uCap">--</div></div>
+        <div class="di"><div class="dl">User ID</div><div class="dv mono" id="uId">--</div></div>
       </div>
-      <div class="sl">Earning Cap Progress</div>
-      <div class="prog-track"><div class="prog-fill" id="capBar" style="width:0%"></div></div>
+      <div class="dl">Earning Cap Progress</div>
+      <div class="prog"><div class="prog-fill" id="capBar" style="width:0%"></div></div>
       <div class="prog-meta"><span id="capPct">0%</span><span id="capMax">--</span></div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Income Breakdown</div></div>
-    <div class="card-bd">
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Income Breakdown</div></div>
+    <div class="gc-body">
       <div class="ic-grid">
         <div class="ic"><div class="ic-l">ROI Income</div><div class="ic-v" id="iROI">--</div></div>
-        <div class="ic c"><div class="ic-l">Direct</div><div class="ic-v" id="iDirect">--</div></div>
-        <div class="ic g"><div class="ic-l">Level</div><div class="ic-v" id="iLevel">--</div></div>
+        <div class="ic g"><div class="ic-l">Direct</div><div class="ic-v" id="iDirect">--</div></div>
+        <div class="ic y"><div class="ic-l">Level</div><div class="ic-v" id="iLevel">--</div></div>
         <div class="ic o"><div class="ic-l">Booster</div><div class="ic-v" id="iBooster">--</div></div>
         <div class="ic p"><div class="ic-l">Leader</div><div class="ic-v" id="iLeader">--</div></div>
         <div class="ic r"><div class="ic-l">Rank Bonus</div><div class="ic-v" id="iRank">--</div></div>
@@ -659,32 +803,32 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Status</div></div>
-    <div class="card-bd">
-      <div class="sg">
-        <div class="si"><div class="sl">Leader</div><div class="sv" id="sLeader">--</div></div>
-        <div class="si"><div class="sl">Rank</div><div class="sv g" id="sRank">--</div></div>
-        <div class="si"><div class="sl">Level Depth</div><div class="sv tl" id="sLevel">--</div></div>
-        <div class="si"><div class="sl">Booster</div><div class="sv" id="sBooster">--</div></div>
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Status &amp; Rank</div></div>
+    <div class="gc-body">
+      <div class="dg">
+        <div class="di"><div class="dl">Leader Status</div><div class="dv" id="sLeader">--</div></div>
+        <div class="di"><div class="dl">Current Rank</div><div class="dv b" id="sRank">--</div></div>
+        <div class="di"><div class="dl">Level Depth</div><div class="dv g" id="sLevel">--</div></div>
+        <div class="di"><div class="dl">Booster</div><div class="dv" id="sBooster">--</div></div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Level Income Unlock</div></div>
-    <div class="card-bd">
-      <div class="lv-row" id="lvGrid"></div>
-      <div style="font-size:9px;color:var(--text3);margin-top:9px;">L1=2% &nbsp; L2=5% &nbsp; L3=8% &nbsp; L4=10% &nbsp; L5=12% &nbsp; L6=13% &nbsp; L7=15%</div>
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Level Income Unlock</div></div>
+    <div class="gc-body">
+      <div class="lv-grid" id="lvGrid"></div>
+      <div style="font-size:9px;color:var(--text3);margin-top:9px;">L1=2%&nbsp;&nbsp;L2=5%&nbsp;&nbsp;L3=8%&nbsp;&nbsp;L4=10%&nbsp;&nbsp;L5=12%&nbsp;&nbsp;L6=13%&nbsp;&nbsp;L7=15%</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Booster Status</div></div>
-    <div class="card-bd">
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Booster Status</div></div>
+    <div class="gc-body">
       <div class="bst">
         <div><div class="bl">Type</div><div class="bv" id="bType">--</div></div>
-        <div><div class="bl">Rate/Day</div><div class="bv" id="bRate">--</div></div>
+        <div><div class="bl">Rate / Day</div><div class="bv" id="bRate">--</div></div>
         <div><div class="bl">Pending</div><div class="bv" id="bPending">--</div></div>
       </div>
     </div>
@@ -693,29 +837,29 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
 </div>
 </div>
 
-<!-- PACKAGES TAB -->
-<div class="tab-panel" id="tab-packages">
-<div class="tab-inner">
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">My Packages</div></div>
-    <div class="card-bd">
-      <div class="pkg-list" id="pkgList"><div class="empty">Loading...</div></div>
+<!--  PACKAGES TAB  -->
+<div class="tp" id="tp-packages">
+<div class="tp-inner">
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">My Packages</div></div>
+    <div class="gc-body">
+      <div class="pkg-list" id="pkgList"><div class="empty">Loading&hellip;</div></div>
     </div>
   </div>
 </div>
 </div>
 
-<!-- TEAM TAB -->
-<div class="tab-panel" id="tab-team">
-<div class="tab-inner">
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Team Overview</div></div>
-    <div class="card-bd">
-      <div class="sg" style="margin-bottom:13px;">
-        <div class="si"><div class="sl">Direct Referrals</div><div class="sv big g" id="tDir">--</div></div>
-        <div class="si"><div class="sl">Total Team</div><div class="sv big tl" id="tTeam">--</div></div>
-        <div class="si"><div class="sl">Direct Business</div><div class="sv g" id="tDB">--</div></div>
-        <div class="si"><div class="sl">Team Business</div><div class="sv" id="tTB">--</div></div>
+<!--  TEAM TAB  -->
+<div class="tp" id="tp-team">
+<div class="tp-inner">
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Team Overview</div></div>
+    <div class="gc-body">
+      <div class="dg" style="margin-bottom:13px;">
+        <div class="di"><div class="dl">Direct Referrals</div><div class="dv big b" id="tDir">--</div></div>
+        <div class="di"><div class="dl">Total Team</div><div class="dv big g" id="tTeam">--</div></div>
+        <div class="di"><div class="dl">Direct Business</div><div class="dv b" id="tDB">--</div></div>
+        <div class="di"><div class="dl">Team Business</div><div class="dv" id="tTB">--</div></div>
       </div>
       <div class="legs">
         <div class="leg str"><div class="leg-num" id="tStr">--</div><div class="leg-lbl">Strong Leg</div></div>
@@ -723,22 +867,22 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
       </div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Share &amp; Earn</div></div>
-    <div class="card-bd">
-      <div class="ref-text" style="margin-bottom:10px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold2);word-break:break-all;line-height:1.4;" id="refLinkText2">--</div>
-      <button class="btn btn-gold btn-block btn-sm" onclick="copyRef()">Copy Referral Link</button>
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Share &amp; Earn</div></div>
+    <div class="gc-body">
+      <div class="ref-text" style="margin-bottom:10px;" id="refLinkText2">--</div>
+      <button class="btn btn-blue btn-block btn-sm" onclick="copyRef()">Copy Referral Link</button>
     </div>
   </div>
 </div>
 </div>
 
-<!-- INCOME TAB -->
-<div class="tab-panel" id="tab-income">
-<div class="tab-inner">
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Income Records</div></div>
-    <div class="card-bd">
+<!--  INCOME TAB  -->
+<div class="tp" id="tp-income">
+<div class="tp-inner">
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Income Records</div></div>
+    <div class="gc-body">
       <div class="ifilters">
         <button class="ifbtn on" onclick="loadIncome(1,this)">ROI</button>
         <button class="ifbtn" onclick="loadIncome(6,this)">Direct</button>
@@ -758,16 +902,16 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
 </div>
 </div>
 
-<!-- HISTORY TAB -->
-<div class="tab-panel" id="tab-history">
-<div class="tab-inner">
-  <div class="card">
-    <div class="card-hd"><div class="card-hd-bar"></div><div class="card-hd-title">Withdrawal History</div></div>
-    <div class="card-bd">
+<!--  HISTORY TAB  -->
+<div class="tp" id="tp-history">
+<div class="tp-inner">
+  <div class="gc">
+    <div class="gc-hd"><div class="gc-hd-bar"></div><div class="gc-hd-title">Withdrawal History</div></div>
+    <div class="gc-body">
       <div class="tbl-wrap">
         <table>
           <thead><tr><th>ID</th><th>Sent</th><th>Received</th><th>Date</th></tr></thead>
-          <tbody id="wdTbody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
+          <tbody id="wdTbody"><tr><td colspan="4" class="empty">Loading&hellip;</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -777,7 +921,7 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
 
 </div><!-- /mainApp -->
 
-<!-- MODALS -->
+<!--  MODALS  -->
 <div class="modal-ov" id="mRegister" onclick="closeOv(event,'mRegister')">
 <div class="modal-sh">
   <div class="modal-handle"></div>
@@ -788,8 +932,8 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
       <input class="fi" id="regRef" placeholder="0x..."/>
       <div class="fh">Enter the wallet address of the person who referred you</div>
     </div>
-    <button class="btn btn-gold btn-block" id="regBtn" onclick="doRegister()">
-      <span id="regSpin" style="display:none;" class="spin-light spin-icon"></span>Register Now
+    <button class="btn btn-blue btn-block" id="regBtn" onclick="doRegister()">
+      <span id="regSpin" style="display:none;" class="spin-icon"></span>Register Now
     </button>
   </div>
 </div>
@@ -800,15 +944,15 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
   <div class="modal-handle"></div>
   <div class="modal-title">Compound Income</div>
   <div class="modal-body" style="padding-bottom:28px;">
-    <div class="si" style="margin-bottom:13px;"><div class="sl">Available Balance</div><div class="sv big g" id="cmpBal">--</div></div>
+    <div class="di" style="margin-bottom:13px;"><div class="dl">Available Balance</div><div class="dv big b" id="cmpBal">--</div></div>
     <div class="fg">
       <label class="fl">Amount (POL)</label>
-      <input class="fi" id="cmpAmt" type="number" min="10" step="1" placeholder="Min 10 POL" oninput="updateCmpPrev()"/>
-      <div class="fh">Admin: 13% &nbsp;&middot;&nbsp; Net package: 87% &nbsp;&middot;&nbsp; No referral fee on compound</div>
+      <input class="fi" id="cmpAmt" type="number" min="10" step="1" placeholder="Min 10 POL" oninput="calcCmpPrev()"/>
+      <div class="fh">Admin: 13% deducted &middot; Net package: 87% &middot; No referral fee on compound</div>
     </div>
     <div id="cmpPrev" class="fprev" style="display:none;"></div>
-    <button class="btn btn-gold btn-block" id="cmpBtn" onclick="doCompound()" style="margin-top:13px;">
-      <span id="cmpSpin" style="display:none;" class="spin-light spin-icon"></span>Compound Now
+    <button class="btn btn-blue btn-block" id="cmpBtn" onclick="doCompound()" style="margin-top:13px;">
+      <span id="cmpSpin" style="display:none;" class="spin-icon"></span>Compound Now
     </button>
   </div>
 </div>
@@ -819,15 +963,15 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
   <div class="modal-handle"></div>
   <div class="modal-title">Withdraw Income</div>
   <div class="modal-body" style="padding-bottom:28px;">
-    <div class="si" style="margin-bottom:13px;"><div class="sl">Withdrawable Balance</div><div class="sv big gr" id="wdBal">--</div></div>
+    <div class="di" style="margin-bottom:13px;"><div class="dl">Withdrawable Balance</div><div class="dv big g" id="wdBal">--</div></div>
     <div class="fg">
       <label class="fl">Amount (POL)</label>
-      <input class="fi" id="wdAmt" type="number" min="0.1" step="0.1" placeholder="Any amount" oninput="updateWdPrev()"/>
-      <div class="fh">You receive 90% &nbsp;&middot;&nbsp; 6% admin &nbsp;&middot;&nbsp; 4% stays in contract</div>
+      <input class="fi" id="wdAmt" type="number" min="0.1" step="0.1" placeholder="Any amount" oninput="calcWdPrev()"/>
+      <div class="fh">You receive 90% &middot; 6% admin &middot; 4% stays in contract</div>
     </div>
     <div id="wdPrev" class="fprev" style="display:none;"></div>
-    <button class="btn btn-green btn-block" id="wdBtn" onclick="doWithdraw()" style="margin-top:13px;">
-      <span id="wdSpin" style="display:none;" class="spin-light spin-icon"></span>Withdraw Now
+    <button class="btn btn-teal btn-block" id="wdBtn" onclick="doWithdraw()" style="margin-top:13px;">
+      <span id="wdSpin" style="display:none;" class="spin-icon"></span>Withdraw Now
     </button>
   </div>
 </div>
@@ -840,10 +984,10 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
   <div class="modal-body" style="padding-bottom:28px;">
     <div class="info-row"><span class="info-lbl">Network</span><span class="info-val">Polygon Mainnet</span></div>
     <div class="info-row"><span class="info-lbl">Chain ID</span><span class="info-val">137</span></div>
-    <div class="info-row" style="align-items:flex-start;"><span class="info-lbl" style="flex-shrink:0;">Address</span><span class="info-val" style="font-size:10px;word-break:break-all;text-align:right;max-width:70%;" id="wInfoAddr">--</span></div>
-    <div class="info-row"><span class="info-lbl">Balance</span><span class="info-val" style="color:var(--gold2);" id="wInfoBal">--</span></div>
+    <div class="info-row"><span class="info-lbl">Address</span><span class="info-val" id="wInfoAddr">--</span></div>
+    <div class="info-row"><span class="info-lbl">Balance</span><span class="info-val" style="color:var(--blue2);" id="wInfoBal">--</span></div>
     <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-      <button class="btn btn-ghost btn-sm" onclick="copyAddr()">Copy Address</button>
+      <button class="btn btn-glass btn-sm" onclick="copyAddr()">Copy Address</button>
       <button class="btn btn-red btn-sm" onclick="disconnectWallet()">Disconnect</button>
     </div>
   </div>
@@ -856,7 +1000,7 @@ tbody tr:hover td{background:rgba(232,160,32,.03);}
   <span class="succ-icon" id="succIcon">&#9989;</span>
   <div class="succ-title" id="succTitle">Success</div>
   <div class="succ-msg" id="succMsg">Transaction confirmed.</div>
-  <button class="btn btn-gold btn-block" onclick="closeSucc()">Done</button>
+  <button class="btn btn-blue btn-block" onclick="closeSucc()">Done</button>
 </div>
 </div>
 
@@ -882,7 +1026,7 @@ function toast(msg,type="info",dur=3500){
   const el=document.createElement("div");
   el.className="toast "+type;el.textContent=msg;
   $("toastWrap").appendChild(el);
-  setTimeout(()=>{el.style.opacity="0";el.style.transform="translateY(16px)";el.style.transition=".3s";setTimeout(()=>el.remove(),320);},dur);
+  setTimeout(()=>{el.style.opacity="0";el.style.transform="translateY(14px)";el.style.transition=".3s";setTimeout(()=>el.remove(),320);},dur);
 }
 function showSucc(icon,title,msg){set("succIcon",icon);set("succTitle",title);set("succMsg",msg);$("succOv").classList.add("show");}
 function closeSucc(){$("succOv").classList.remove("show");}
@@ -898,10 +1042,10 @@ function closeOv(e,id){if(e.target.id===id)closeModal(id);}
 function setSpin(bid,sid,on){$(bid).disabled=on;$(sid).style.display=on?"inline-block":"none";}
 
 function switchTab(name,btn){
-  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll(".nav-tab").forEach(b=>b.classList.remove("active"));
-  $("tab-"+name).classList.add("active");
-  if(btn)btn.classList.add("active");
+  document.querySelectorAll(".tp").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".t").forEach(b=>b.classList.remove("on"));
+  $("tp-"+name).classList.add("on");
+  if(btn)btn.classList.add("on");
   if(name==="packages")loadPackages();
   if(name==="team")loadTeam();
   if(name==="history")loadHistory();
@@ -943,14 +1087,16 @@ async function connectWallet(){
     startTicker();
     window.ethereum.on("accountsChanged",()=>location.reload());
     window.ethereum.on("chainChanged",()=>location.reload());
-  }catch(e){toast(e.message||"Connection failed","error");btn.disabled=false;btn.textContent="Connect MetaMask";}
+  }catch(e){
+    toast(e.message||"Connection failed","error");
+    btn.disabled=false;btn.textContent="Connect Wallet";
+  }
 }
 
 function disconnectWallet(){
   clearInterval(roiInt);walletAddr=null;closeModal("mWallet");
   $("connectScreen").style.display="flex";$("mainApp").style.display="none";
 }
-
 function copyAddr(){
   navigator.clipboard.writeText(walletAddr||"").then(()=>toast("Address copied","success")).catch(()=>{});
 }
@@ -959,78 +1105,59 @@ async function refreshAll(){
   if(!walletAddr)return;
   try{await Promise.all([loadGlobal(),loadUser()]);}catch(e){console.error(e);}
 }
-
 async function loadGlobal(){
   const[tu,tp,tw]=await Promise.all([rc.totalUsers(),rc.totalPackages(),rc.totalWithdrawals()]);
   set("gU",tu.toString());set("gP",tp.toString());set("gW",tw.toString());
 }
-
 async function loadUser(){
   try{
     const[u,bal,isReg,boost]=await Promise.all([
-      rc.getUserByAddress(walletAddr),
-      provider.getBalance(walletAddr),
-      rc.isRegistered(walletAddr),
-      rc.getBoosterStatus(walletAddr)
+      rc.getUserByAddress(walletAddr),provider.getBalance(walletAddr),
+      rc.isRegistered(walletAddr),rc.getBoosterStatus(walletAddr)
     ]);
     lastU=u;
-    const bs=f2(bal);
-    set("wBal",bs);set("wInfoBal",bs);
+    const bs=f2(bal);set("wBal",bs);set("wInfoBal",bs);
     $("regAlert").style.display=isReg?"none":"flex";
-    set("uUnpaid",f2(u.unpaidIncome));
-    set("uSelf",f2(u.selfTotal));
-    set("uTotInc",f2(u.totalIncome));
-    set("uCap",u.isThree==1n?"3x Cap":"2x Cap");
+    set("uUnpaid",f2(u.unpaidIncome));set("uSelf",f2(u.selfTotal));
+    set("uTotInc",f2(u.totalIncome));set("uCap",u.isThree==1n?"3x Cap":"2x Cap");
     set("uId","#"+u.userId.toString());
-    set("iROI",f2(u.selfRoiTotal));
-    set("iDirect",f2(u.directIncomeTotal));
-    set("iLevel",f2(u.levelTotal));
-    set("iBooster",f2(u.boosterTotal));
-    set("iLeader",f2(u.leaderTotal));
-    set("iRank",f2(u.rankTotal));
+    set("iROI",f2(u.selfRoiTotal));set("iDirect",f2(u.directIncomeTotal));
+    set("iLevel",f2(u.levelTotal));set("iBooster",f2(u.boosterTotal));
+    set("iLeader",f2(u.leaderTotal));set("iRank",f2(u.rankTotal));
     set("sLeader",u.isLeader?"Leader":"Not Yet");
     set("sRank",u.ranknow>0n?"Rank "+u.ranknow.toString():"Unranked");
     set("sLevel","L"+u.levelsno.toString()+" / L7");
     const bTypes={0:"None",1:"Type 1",2:"Type 2",3:"Type 3"};
     const bt=Number(boost[0]);
-    set("sBooster",bTypes[bt]||"None");
-    set("bType",bTypes[bt]||"None");
-    set("bRate",(Number(boost[1])/100).toFixed(2)+"%/day");
-    set("bPending",f6(boost[2]));
+    set("sBooster",bTypes[bt]||"None");set("bType",bTypes[bt]||"None");
+    set("bRate",(Number(boost[1])/100).toFixed(2)+"%/day");set("bPending",f6(boost[2]));
     if(u.totalTopay>0n){
       const pct=Math.min(100,Number((u.totalIncome*100n)/u.totalTopay));
       $("capBar").style.width=pct+"%";
-      set("capPct",pct.toFixed(1)+"%");
-      set("capMax",f2(u.totalTopay));
+      set("capPct",pct.toFixed(1)+"%");set("capMax",f2(u.totalTopay));
     }
-    const lp=[2,5,8,10,12,13,15];
-    const lvl=Number(u.levelsno);
-    $("lvGrid").innerHTML=lp.map((p,i)=>`<div class="lv-box ${lvl>i?"on":""}"><div class="lv-n">L${i+1}</div><div class="lv-p">${p}%</div>${lvl>i?'<div class="lv-ck">&#10003;</div>':''}</div>`).join("");
+    const lp=[2,5,8,10,12,13,15];const lvl=Number(u.levelsno);
+    $("lvGrid").innerHTML=lp.map((p,i)=>`<div class="lv ${lvl>i?"on":""}"><div class="lv-n">L${i+1}</div><div class="lv-p">${p}%</div>${lvl>i?'<div class="lv-ck">&#10003;</div>':''}</div>`).join("");
     const rl=SITE+"?ref="+walletAddr;
-    set("refLinkText",rl);
-    set("refLinkText2",rl);
+    set("refLinkText",rl);set("refLinkText2",rl);
   }catch(e){console.error(e);}
 }
-
 async function startTicker(){
   const tick=async()=>{
     if(!walletAddr)return;
     try{const r=await rc.getPendingROI(walletAddr);set("pendingROI",f6(r));}catch(e){}
   };
-  await tick();
-  roiInt=setInterval(tick,10000);
+  await tick();roiInt=setInterval(tick,10000);
 }
-
 async function loadPackages(){
-  const el=$("pkgList");
-  el.innerHTML='<div class="empty">Loading...</div>';
+  const el=$("pkgList");el.innerHTML='<div class="empty">Loading...</div>';
   try{
     const pkgs=await rc.getPackagesByUser(walletAddr);
-    if(!pkgs.length){el.innerHTML='<div class="empty"><div class="empty-icon">&#128230;</div>No packages yet</div>';return;}
+    if(!pkgs.length){el.innerHTML='<div class="empty">No packages yet</div>';return;}
     const rates=[[500,"1.0%/day"],[3000,"1.2%/day"],[8000,"1.5%/day"],[15000,"1.8%/day"],[20000,"2.0%/day"],[Infinity,"2.5%/day"]];
     const gr=amt=>{const p=fe(amt);for(const[c,r]of rates)if(p<=c)return r;return"2.5%/day";};
     el.innerHTML=[...pkgs].reverse().map(p=>`
-      <div class="pkg-item">
+      <div class="pkg">
         <div class="pkg-l">
           <div class="pkg-id">Package #${p.pkgId.toString()}</div>
           <div class="pkg-amt">${f2(p.amount)}</div>
@@ -1044,27 +1171,20 @@ async function loadPackages(){
       </div>`).join("");
   }catch(e){el.innerHTML='<div class="empty">Error loading</div>';}
 }
-
 async function loadTeam(){
   try{
     const[u,[str,wk]]=await Promise.all([rc.getUserByAddress(walletAddr),rc.getTeamSplit(walletAddr)]);
-    set("tDir",u.directCount.toString());
-    set("tTeam",u.teamCount.toString());
-    set("tDB",f2(u.directBusiness));
-    set("tTB",f2(u.teamBusiness));
-    set("tStr",str.toString());
-    set("tWk",wk.toString());
+    set("tDir",u.directCount.toString());set("tTeam",u.teamCount.toString());
+    set("tDB",f2(u.directBusiness));set("tTB",f2(u.teamBusiness));
+    set("tStr",str.toString());set("tWk",wk.toString());
   }catch(e){}
 }
-
 const iLabels={1:"ROI",2:"Level",3:"Rank",4:"Booster",5:"Leader",6:"Direct"};
-const iBadges={1:"bdg-g",2:"bdg-gr",3:"bdg-r",4:"bdg-o",5:"bdg-p",6:"bdg-t"};
-
+const iBadges={1:"bdg-b",2:"bdg-g",3:"bdg-r",4:"bdg-o",5:"bdg-p",6:"bdg-y"};
 async function loadIncome(type,btn){
   document.querySelectorAll(".ifbtn").forEach(b=>b.classList.remove("on"));
   if(btn)btn.classList.add("on");
-  const tb=$("incTbody");
-  tb.innerHTML='<tr><td colspan="5" class="empty">Loading...</td></tr>';
+  const tb=$("incTbody");tb.innerHTML='<tr><td colspan="5" class="empty">Loading...</td></tr>';
   try{
     const recs=await rc.getIncomeByUser(walletAddr,type);
     if(!recs.length){tb.innerHTML=`<tr><td colspan="5" class="empty">No records yet</td></tr>`;return;}
@@ -1072,16 +1192,14 @@ async function loadIncome(type,btn){
       <tr>
         <td class="muted">#${r.incomeId.toString()}</td>
         <td><span class="bdg ${iBadges[type]}">${iLabels[type]}</span></td>
-        <td style="color:var(--gold2);font-weight:500;" class="mono">${f4(r.amount)}</td>
+        <td style="color:var(--blue2);font-weight:500;" class="mono">${f4(r.amount)}</td>
         <td>${r.level>0n?"L"+r.level.toString():"--"}</td>
         <td class="muted">${fd(r.timeStamp)}</td>
       </tr>`).join("");
   }catch(e){tb.innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">Error</td></tr>';}
 }
-
 async function loadHistory(){
-  const tb=$("wdTbody");
-  tb.innerHTML='<tr><td colspan="4" class="empty">Loading...</td></tr>';
+  const tb=$("wdTbody");tb.innerHTML='<tr><td colspan="4" class="empty">Loading...</td></tr>';
   try{
     const wds=await rc.getWithdrawalsByUser(walletAddr);
     if(!wds.length){tb.innerHTML='<tr><td colspan="4" class="empty">No withdrawals yet</td></tr>';return;}
@@ -1089,128 +1207,95 @@ async function loadHistory(){
       <tr>
         <td class="muted">#${w.wdId.toString()}</td>
         <td class="mono">${f2(w.grossAmount)}</td>
-        <td style="color:var(--green);font-weight:500;" class="mono">${f2(w.userReceived)}</td>
+        <td style="color:var(--teal);font-weight:500;" class="mono">${f2(w.userReceived)}</td>
         <td class="muted">${fd(w.timeStamp)}</td>
       </tr>`).join("");
   }catch(e){tb.innerHTML='<tr><td colspan="4" class="empty">Error</td></tr>';}
 }
-
-function updateDashBuyPrev(){
-  const v=parseFloat($("dashBuyAmt").value);
-  const el=$("dashBuyPrev");
+function calcBuyPreview(){
+  const v=parseFloat($("dashBuyAmt").value);const el=$("dashBuyPrev");
   if(v>=10){
     const rates=[[500,1.0],[3000,1.2],[8000,1.5],[15000,1.8],[20000,2.0],[Infinity,2.5]];
     let r=2.5;for(const[c,rt]of rates)if(v<=c){r=rt;break;}
     el.textContent="Daily ROI: "+(v*r/100).toFixed(4)+" POL at "+r+"%/day";
   }else{el.textContent="";}
 }
-
-function updateCmpPrev(){
-  const v=parseFloat($("cmpAmt").value);
-  const el=$("cmpPrev");
-  if(v>=10){el.style.display="block";el.textContent="Net package: "+(v*.87).toFixed(4)+" POL";}
+function calcCmpPrev(){
+  const v=parseFloat($("cmpAmt").value);const el=$("cmpPrev");
+  if(v>=10){el.style.display="block";el.textContent="Net package: "+(v*0.87).toFixed(4)+" POL";}
   else el.style.display="none";
 }
-
-function updateWdPrev(){
-  const v=parseFloat($("wdAmt").value);
-  const el=$("wdPrev");
-  if(v>0){el.style.display="block";el.textContent="You receive: "+(v*.9).toFixed(4)+" POL";}
+function calcWdPrev(){
+  const v=parseFloat($("wdAmt").value);const el=$("wdPrev");
+  if(v>0){el.style.display="block";el.textContent="You receive: "+(v*0.9).toFixed(4)+" POL";}
   else el.style.display="none";
 }
-
 async function doRegister(){
   const ref=$("regRef").value.trim();
   if(!ethers.isAddress(ref)){toast("Enter a valid wallet address","error");return;}
   setSpin("regBtn","regSpin",true);
   try{
-    const tx=await contract.register(ref);
-    toast("Transaction sent...","info");
-    await tx.wait();
-    closeModal("mRegister");
-    showSucc("&#9989;","Registered!","Account is active. Buy a package to start earning.");
+    const tx=await contract.register(ref);toast("Transaction sent...","info");await tx.wait();
+    closeModal("mRegister");showSucc("&#9989;","Registered!","Account active. Buy a package to start earning.");
     await refreshAll();
   }catch(e){toast(e.reason||e.message||"Failed","error");}
   setSpin("regBtn","regSpin",false);
 }
-
 async function doDashBuy(){
   const amt=$("dashBuyAmt").value;
   if(!amt||parseFloat(amt)<10){toast("Minimum package is 10 POL","error");return;}
   setSpin("dashBuyBtn","dashBuySpin",true);
   try{
-    const value=ethers.parseEther(String(parseFloat(amt)));
-    const tx=await contract.buyPackage({value});
-    toast("Transaction sent...","info");
-    await tx.wait();
-    $("dashBuyAmt").value="";
-    $("dashBuyPrev").textContent="";
-    showSucc("&#128230;","Package Active!",parseFloat(amt).toFixed(2)+" POL staked. Earning ROI every second.");
+    const tx=await contract.buyPackage({value:ethers.parseEther(String(parseFloat(amt)))});
+    toast("Transaction sent...","info");await tx.wait();
+    $("dashBuyAmt").value="";$("dashBuyPrev").textContent="";
+    showSucc("&#128230;","Package Active!",parseFloat(amt).toFixed(2)+" POL staked and earning ROI every second.");
     await refreshAll();
-  }catch(e){toast(e.reason||e.message||"Transaction failed","error");}
+  }catch(e){toast(e.reason||e.message||"Failed","error");}
   setSpin("dashBuyBtn","dashBuySpin",false);
 }
-
 async function doClaimROI(){
   setSpin("claimBtn","claimSpin",true);
   try{
-    const tx=await contract.claimROI();
-    toast("Claiming ROI...","info");
-    await tx.wait();
-    showSucc("&#128176;","ROI Claimed!","Added to your income balance.");
-    await refreshAll();
+    const tx=await contract.claimROI();toast("Claiming ROI...","info");await tx.wait();
+    showSucc("&#128176;","ROI Claimed!","Added to your income balance.");await refreshAll();
   }catch(e){toast(e.reason||e.message||"Failed","error");}
   setSpin("claimBtn","claimSpin",false);
 }
-
 async function doCompound(){
   const amt=$("cmpAmt").value;
   if(!amt||parseFloat(amt)<10){toast("Minimum is 10 POL","error");return;}
   setSpin("cmpBtn","cmpSpin",true);
   try{
     const tx=await contract.compound(ethers.parseEther(String(parseFloat(amt))));
-    toast("Compounding...","info");
-    await tx.wait();
-    closeModal("mCompound");
-    showSucc("&#128260;","Compounded!","New package created from income balance.");
-    await refreshAll();
-    if($("tab-packages").classList.contains("active"))loadPackages();
+    toast("Compounding...","info");await tx.wait();closeModal("mCompound");
+    showSucc("&#128260;","Compounded!","New package created.");await refreshAll();
+    if($("tp-packages").classList.contains("on"))loadPackages();
   }catch(e){toast(e.reason||e.message||"Failed","error");}
   setSpin("cmpBtn","cmpSpin",false);
 }
-
 async function doWithdraw(){
   const amt=$("wdAmt").value;
   if(!amt||parseFloat(amt)<=0){toast("Enter a valid amount","error");return;}
   setSpin("wdBtn","wdSpin",true);
   try{
     const tx=await contract.withdrawIncome(ethers.parseEther(String(parseFloat(amt))));
-    toast("Withdrawal in progress...","info");
-    await tx.wait();
-    closeModal("mWithdraw");
-    showSucc("&#127974;","Withdrawn!",(parseFloat(amt)*.9).toFixed(4)+" POL sent to your wallet.");
-    await refreshAll();
-    if($("tab-history").classList.contains("active"))loadHistory();
+    toast("Withdrawing...","info");await tx.wait();closeModal("mWithdraw");
+    showSucc("&#127974;","Withdrawn!",(parseFloat(amt)*0.9).toFixed(4)+" POL sent to your wallet.");
+    await refreshAll();if($("tp-history").classList.contains("on"))loadHistory();
   }catch(e){toast(e.reason||e.message||"Failed","error");}
   setSpin("wdBtn","wdSpin",false);
 }
-
 function copyRef(){
   const link=SITE+"?ref="+walletAddr;
   navigator.clipboard.writeText(link).then(()=>toast("Referral link copied!","success")).catch(()=>{
-    const el=document.createElement("textarea");
-    el.value=link;document.body.appendChild(el);el.select();document.execCommand("copy");el.remove();
+    const el=document.createElement("textarea");el.value=link;
+    document.body.appendChild(el);el.select();document.execCommand("copy");el.remove();
     toast("Referral link copied!","success");
   });
 }
-
-window.addEventListener("load",async()=>{
-  loadConnectStats();
-  if(window.ethereum){
-    const a=await window.ethereum.request({method:"eth_accounts"}).catch(()=>[]);
-    if(a.length)connectWallet();
-  }
-});
+// Load connect stats on page load (NO auto wallet connect)
+window.addEventListener("load",()=>{ loadConnectStats(); });
 </script>
 </body>
 </html>
