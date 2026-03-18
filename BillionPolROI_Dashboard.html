@@ -2,1191 +2,828 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>BillionPolROI — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="theme-color" content="#060a0f"/>
+<title>BillionPolROI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <style>
-:root {
-  --bg:        #080c10;
-  --bg2:       #0d1218;
-  --bg3:       #111820;
-  --card:      #131c26;
-  --border:    #1e2d3d;
-  --gold:      #f0b429;
-  --gold2:     #ffd166;
-  --cyan:      #00d4ff;
-  --green:     #00e676;
-  --red:       #ff4757;
-  --text:      #e8edf2;
-  --muted:     #5a7080;
-  --radius:    14px;
-  --glow:      0 0 24px rgba(240,180,41,0.15);
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#060a0f;--bg1:#0a1018;--bg2:#0f1622;--card:#111a27;--card2:#162030;
+  --border:#1c2d3f;--border2:#243548;
+  --gold:#e8a020;--gold2:#f5c842;--golddim:rgba(232,160,32,0.12);
+  --cyan:#00c8f0;--cyandim:rgba(0,200,240,0.1);
+  --green:#00e08a;--greendim:rgba(0,224,138,0.1);
+  --red:#ff4560;--reddim:rgba(255,69,96,0.1);
+  --purple:#9b6dff;--orange:#ff8c42;
+  --text:#dce8f0;--text2:#8a9fb0;--text3:#4a6070;
+  --r:12px;--r2:18px;
+  --shadow:0 8px 32px rgba(0,0,0,0.5);
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:'DM Sans',sans-serif;
-  font-size:14px;
-  min-height:100vh;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(240,180,41,0.06) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(0,212,255,0.04) 0%, transparent 60%);
-}
+html{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body{min-height:100vh;overflow-x:hidden;width:100%;background:radial-gradient(ellipse 100% 60% at 50% -10%,rgba(232,160,32,0.07) 0%,transparent 65%),radial-gradient(ellipse 70% 50% at 100% 60%,rgba(0,200,240,0.04) 0%,transparent 60%),var(--bg);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-track{background:var(--bg2);}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
-
-/* ── Header ── */
-.header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px 32px;
-  background:rgba(8,12,16,0.85);
-  backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--border);
-  position:sticky;top:0;z-index:100;
-}
-.logo{
-  font-family:'Orbitron',monospace;
-  font-size:20px;font-weight:900;
-  background:linear-gradient(135deg,var(--gold),var(--gold2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  letter-spacing:1px;
-}
-.logo span{color:var(--cyan);-webkit-text-fill-color:var(--cyan);}
-.header-right{display:flex;gap:12px;align-items:center;}
-.net-badge{
-  padding:5px 12px;border-radius:99px;
-  background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.25);
-  color:var(--green);font-size:12px;font-weight:600;
-  display:flex;align-items:center;gap:6px;
-}
-.net-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-
-/* ── Buttons ── */
-.btn{
-  padding:10px 22px;border-radius:10px;border:none;cursor:pointer;
-  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
-  transition:all .2s;display:inline-flex;align-items:center;gap:7px;
-}
-.btn-gold{
-  background:linear-gradient(135deg,var(--gold),#e6a020);
-  color:#0a0600;
-}
-.btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(240,180,41,0.35);}
-.btn-outline{
-  background:transparent;
-  border:1px solid var(--border);
-  color:var(--text);
-}
-.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
-.btn-green{background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);color:var(--green);}
-.btn-green:hover{background:rgba(0,230,118,0.2);}
-.btn-cyan{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.25);color:var(--cyan);}
-.btn-cyan:hover{background:rgba(0,212,255,0.18);}
-.btn-red{background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.25);color:var(--red);}
-.btn-red:hover{background:rgba(255,71,87,0.18);}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}
-.btn-sm{padding:7px 14px;font-size:12px;}
-
-/* ── Connect Wallet Screen ── */
-#connectScreen{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:80vh;gap:24px;text-align:center;padding:40px;
-}
-.connect-box{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:24px;padding:56px 64px;max-width:480px;width:100%;
-  box-shadow:var(--glow);
-}
-.connect-icon{font-size:64px;margin-bottom:8px;}
-.connect-box h2{
-  font-family:'Orbitron',monospace;font-size:22px;font-weight:700;
-  color:var(--gold);margin-bottom:10px;
-}
-.connect-box p{color:var(--muted);line-height:1.6;margin-bottom:28px;}
-.contract-addr{
-  font-size:11px;color:var(--muted);
-  background:var(--bg3);padding:8px 14px;border-radius:8px;
-  font-family:monospace;word-break:break-all;margin-bottom:24px;
-}
-
-/* ── Main Layout ── */
-#mainApp{display:none;}
-.container{max-width:1400px;margin:0 auto;padding:28px 24px;}
-
-/* ── Wallet Bar ── */
-.wallet-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--radius);padding:14px 20px;margin-bottom:24px;
-  flex-wrap:wrap;gap:12px;
-}
-.wallet-addr{font-family:monospace;font-size:13px;color:var(--cyan);}
-.wallet-bal{font-weight:600;color:var(--gold);}
-
-/* ── Global Stats ── */
-.global-stats{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-  gap:14px;margin-bottom:28px;
-}
-.stat-card{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--radius);padding:18px 20px;
-  transition:border-color .2s;
-}
-.stat-card:hover{border-color:rgba(240,180,41,0.3);}
-.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
-.stat-value{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:var(--gold);}
-.stat-value.cyan{color:var(--cyan);}
-.stat-value.green{color:var(--green);}
-
-/* ── Tabs ── */
-.tabs{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:24px;flex-wrap:wrap;}
-.tab{
-  flex:1;min-width:120px;padding:10px 16px;border-radius:9px;border:none;
-  background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;
-  font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;
-  white-space:nowrap;
-}
-.tab.active{background:var(--card);color:var(--gold);border:1px solid var(--border);}
-.tab:hover:not(.active){color:var(--text);}
-.tab-content{display:none;}
-.tab-content.active{display:block;}
-
-/* ── Cards / Panels ── */
-.panel{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--radius);padding:24px;margin-bottom:20px;
-}
-.panel-title{
-  font-family:'Orbitron',monospace;font-size:14px;font-weight:600;
-  color:var(--gold);margin-bottom:20px;letter-spacing:.5px;
-  display:flex;align-items:center;gap:8px;
-}
-.panel-title::before{content:'';display:block;width:3px;height:16px;background:var(--gold);border-radius:2px;}
-
-/* ── User Stats Grid ── */
-.user-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
-.u-stat{
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:10px;padding:14px 16px;
-}
-.u-stat-label{font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px;}
-.u-stat-value{font-size:16px;font-weight:600;color:var(--text);}
-.u-stat-value.gold{color:var(--gold);}
-.u-stat-value.green{color:var(--green);}
-.u-stat-value.cyan{color:var(--cyan);}
-
-/* ── Income Breakdown ── */
-.income-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
-.income-item{
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:10px;padding:14px 16px;
-  border-left:3px solid var(--gold);
-}
-.income-item.cyan{border-left-color:var(--cyan);}
-.income-item.green{border-left-color:var(--green);}
-.income-item.red{border-left-color:#ff6b81;}
-.income-item.purple{border-left-color:#a55eea;}
-.income-item.orange{border-left-color:#fd9644;}
-
-/* ── Forms ── */
-.form-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;}
-.form-group{display:flex;flex-direction:column;gap:7px;}
-.form-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
-.form-input{
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:9px;padding:11px 14px;color:var(--text);
-  font-family:'DM Sans',sans-serif;font-size:14px;
-  outline:none;transition:border-color .2s;width:100%;
-}
-.form-input:focus{border-color:var(--gold);}
-.form-input::placeholder{color:var(--muted);}
-.form-hint{font-size:11px;color:var(--muted);margin-top:4px;}
-
-/* ── Action Cards ── */
-.action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
-.action-card{
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:12px;padding:20px;
-}
-.action-card h4{font-size:13px;font-weight:600;color:var(--gold);margin-bottom:14px;}
-
-/* ── Pending ROI Banner ── */
-.roi-banner{
-  background:linear-gradient(135deg,rgba(240,180,41,0.08),rgba(240,180,41,0.03));
-  border:1px solid rgba(240,180,41,0.2);
-  border-radius:14px;padding:20px 24px;
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:16px;margin-bottom:20px;
-}
-.roi-amount{
-  font-family:'Orbitron',monospace;font-size:28px;font-weight:700;
-  color:var(--gold);
-}
-.roi-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
-
-/* ── Table ── */
-.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
-table{width:100%;border-collapse:collapse;}
-th{
-  background:var(--bg2);padding:11px 14px;text-align:left;
-  font-size:11px;color:var(--muted);text-transform:uppercase;
-  letter-spacing:.6px;white-space:nowrap;
-}
-td{
-  padding:11px 14px;border-top:1px solid var(--border);
-  font-size:13px;color:var(--text);white-space:nowrap;
-}
-tr:hover td{background:rgba(255,255,255,0.02);}
-.badge{
-  padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;
-}
-.badge-gold{background:rgba(240,180,41,0.15);color:var(--gold);}
-.badge-green{background:rgba(0,230,118,0.12);color:var(--green);}
-.badge-cyan{background:rgba(0,212,255,0.12);color:var(--cyan);}
-.badge-purple{background:rgba(165,94,234,0.15);color:#a55eea;}
-.badge-orange{background:rgba(253,150,68,0.15);color:#fd9644;}
-.badge-red{background:rgba(255,71,87,0.12);color:var(--red);}
-
-/* ── Booster ── */
-.booster-card{
-  background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(0,212,255,0.02));
-  border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:18px 20px;
-}
-
-/* ── Packages ── */
-.pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
-.pkg-card{
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:12px;padding:16px;position:relative;overflow:hidden;
-}
-.pkg-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--gold),var(--cyan));
-}
-.pkg-amount{font-family:'Orbitron',monospace;font-size:18px;color:var(--gold);font-weight:700;}
-.pkg-rate{font-size:11px;color:var(--muted);margin-top:4px;}
-
-/* ── Team ── */
-.team-split{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.leg-card{
-  border-radius:10px;padding:16px 18px;text-align:center;
-}
-.leg-card.strong{background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.2);}
-.leg-card.weaker{background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);}
-.leg-num{font-family:'Orbitron',monospace;font-size:28px;font-weight:700;}
-.leg-card.strong .leg-num{color:var(--green);}
-.leg-card.weaker .leg-num{color:var(--cyan);}
-.leg-label{font-size:11px;color:var(--muted);margin-top:4px;}
-
-/* ── Toast ── */
-#toast{
-  position:fixed;bottom:28px;right:28px;z-index:999;
-  display:flex;flex-direction:column;gap:10px;
-}
-.toast-msg{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:10px;padding:14px 18px;min-width:280px;max-width:380px;
-  font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,0.4);
-  animation:slideIn .25s ease;
-}
-.toast-msg.success{border-left:3px solid var(--green);}
-.toast-msg.error{border-left:3px solid var(--red);}
-.toast-msg.info{border-left:3px solid var(--cyan);}
-@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
-
-/* ── Loading spinner ── */
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.2);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 @keyframes spin{to{transform:rotate(360deg);}}
+@keyframes roiPulse{0%,100%{color:var(--gold);}50%{color:var(--gold2);}}
+@keyframes bounceIn{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.08);}80%{transform:scale(.96);}100%{transform:scale(1);opacity:1;}}
+@keyframes toastUp{from{transform:translateY(60px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes glow{0%,100%{box-shadow:0 0 12px rgba(232,160,32,.2);}50%{box-shadow:0 0 28px rgba(232,160,32,.5);}}
 
-/* ── Cap Progress ── */
-.progress-bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:8px;}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width .5s;}
+/* CONNECT */
+#connectScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.c-wrap{width:100%;max-width:400px;animation:scaleIn .5s cubic-bezier(.34,1.56,.64,1);}
+.c-card{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:36px 28px;position:relative;overflow:hidden;}
+.c-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.c-icon{width:68px;height:68px;border-radius:20px;background:var(--golddim);border:1px solid rgba(232,160,32,.3);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:32px;animation:glow 3s ease-in-out infinite;}
+.c-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;text-align:center;margin-bottom:8px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.c-sub{color:var(--text2);text-align:center;font-size:13px;line-height:1.6;margin-bottom:22px;}
+.c-addr{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:20px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);text-align:center;word-break:break-all;}
+.c-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px;}
+.c-stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.c-stat-v{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--gold);}
+.c-stat-l{font-size:11px;color:var(--text3);margin-top:3px;}
 
-/* ── Referral link ── */
-.ref-box{
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:10px;padding:12px 14px;
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  font-size:12px;font-family:monospace;color:var(--cyan);word-break:break-all;
-}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:13px 20px;border-radius:var(--r);border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;transition:all .18s;white-space:nowrap;user-select:none;}
+.btn:active{transform:scale(.97);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#c97a10);color:#060200;box-shadow:0 4px 18px rgba(232,160,32,.3);}
+.btn-block{width:100%;}
+.btn-ghost{background:var(--bg2);border:1px solid var(--border);color:var(--text2);}
+.btn-green{background:var(--greendim);border:1px solid rgba(0,224,138,.25);color:var(--green);}
+.btn-cyan{background:var(--cyandim);border:1px solid rgba(0,200,240,.25);color:var(--cyan);}
+.btn-red{background:var(--reddim);border:1px solid rgba(255,69,96,.25);color:var(--red);}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text);}
+.btn-sm{padding:9px 16px;font-size:13px;border-radius:9px;}
+.btn-xs{padding:6px 12px;font-size:12px;border-radius:8px;}
+.btn:disabled{opacity:.4;pointer-events:none;}
+.spin-icon{width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-top-color:currentColor;border-radius:50%;animation:spin .65s linear infinite;flex-shrink:0;}
 
-/* ── Level badges ── */
-.level-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-.level-box{
-  border-radius:8px;padding:8px 4px;text-align:center;
-  border:1px solid var(--border);background:var(--bg3);
-}
-.level-box.unlocked{border-color:rgba(240,180,41,0.4);background:rgba(240,180,41,0.06);}
-.level-num{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--muted);}
-.level-box.unlocked .level-num{color:var(--gold);}
-.level-pct{font-size:10px;color:var(--muted);margin-top:3px;}
+/* MAIN */
+#mainApp{display:none;min-height:100vh;padding-bottom:24px;}
 
-/* ── Responsive ── */
-@media(max-width:640px){
-  .header{padding:14px 16px;}
-  .container{padding:16px;}
-  .connect-box{padding:36px 24px;}
-  .level-grid{grid-template-columns:repeat(4,1fr);}
-  .team-split{grid-template-columns:1fr;}
-  .form-row{grid-template-columns:1fr;}
-}
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;position:sticky;top:0;z-index:50;background:rgba(6,10,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hdr-r{display:flex;align-items:center;gap:8px;}
+.net-pill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;background:rgba(0,224,138,.08);border:1px solid rgba(0,224,138,.2);font-size:11px;font-weight:600;color:var(--green);}
+.net-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+.w-chip{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:99px;background:var(--bg2);border:1px solid var(--border2);font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--cyan);cursor:pointer;}
 
-/* ── Register banner (if not registered) ── */
-.reg-banner{
-  background:rgba(255,71,87,0.07);border:1px solid rgba(255,71,87,0.2);
-  border-radius:12px;padding:18px 22px;margin-bottom:20px;
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
-}
-.reg-banner p{color:var(--red);font-weight:500;}
+/* ALERT */
+.alert{margin:12px 14px 0;border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;animation:fadeUp .3s ease;}
+.alert-warn{background:var(--reddim);border:1px solid rgba(255,69,96,.2);}
+.alert-txt{font-size:13px;color:var(--red);font-weight:500;}
+
+/* GLOBAL STATS */
+.gstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px;}
+.gstat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:11px 8px;text-align:center;animation:fadeUp .4s ease both;}
+.gstat:nth-child(1){animation-delay:.05s;}.gstat:nth-child(2){animation-delay:.1s;}.gstat:nth-child(3){animation-delay:.15s;}
+.gstat-v{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--gold);}
+.gstat-v.c{color:var(--cyan);}.gstat-v.g{color:var(--green);}
+.gstat-l{font-size:10px;color:var(--text3);margin-top:4px;}
+
+/* ROI HERO */
+.roi-hero{margin:0 14px 12px;background:linear-gradient(135deg,rgba(232,160,32,.1),rgba(232,160,32,.03));border:1px solid rgba(232,160,32,.25);border-radius:var(--r2);padding:20px;position:relative;overflow:hidden;animation:fadeUp .5s .1s ease both;}
+.roi-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(232,160,32,.12) 0%,transparent 70%);}
+.roi-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.roi-amt{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--gold);animation:roiPulse 3s ease-in-out infinite;word-break:break-all;}
+.roi-sub{font-size:11px;color:var(--text3);margin-top:5px;margin-bottom:16px;}
+.roi-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* NAV TABS */
+.nav-tabs{display:flex;overflow-x:auto;padding:0 14px;gap:6px;scrollbar-width:none;margin-bottom:2px;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{flex-shrink:0;padding:8px 14px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+.nav-tab.active{background:var(--golddim);border-color:rgba(232,160,32,.35);color:var(--gold);font-weight:600;}
+
+/* TAB PANELS */
+.tab-panel{display:none;animation:fadeUp .3s ease;}
+.tab-panel.active{display:block;}
+.tab-inner{padding:10px 14px 0;}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:12px;overflow:hidden;}
+.card-hd{padding:15px 16px 0;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.3px;display:flex;align-items:center;gap:8px;}
+.card-hd::before{content:'';width:3px;height:13px;background:linear-gradient(180deg,var(--gold),var(--gold2));border-radius:2px;flex-shrink:0;}
+.card-bd{padding:13px 16px 16px;}
+
+/* STAT GRID */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.si{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 13px;}
+.sl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.sv{font-size:14px;font-weight:600;color:var(--text);}
+.sv.gold{color:var(--gold);}.sv.green{color:var(--green);}.sv.cyan{color:var(--cyan);}
+.sv.big{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;}
+
+/* PROGRESS */
+.prog-track{height:5px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:6px;}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 1s cubic-bezier(.25,.46,.45,.94);}
+.prog-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:3px;}
+
+/* INCOME CHIPS */
+.ic-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ic{border-radius:var(--r);padding:11px 13px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);}
+.ic.c{border-left-color:var(--cyan);}.ic.g{border-left-color:var(--green);}
+.ic.o{border-left-color:var(--orange);}.ic.p{border-left-color:var(--purple);}
+.ic.r{border-left-color:var(--red);}
+.ic-l{font-size:10px;color:var(--text3);margin-bottom:4px;}
+.ic-v{font-size:13px;font-weight:600;color:var(--text);}
+
+/* LEVEL GRID */
+.lv-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.lv-box{border-radius:8px;padding:7px 2px;text-align:center;background:var(--bg2);border:1px solid var(--border);}
+.lv-box.on{background:var(--golddim);border-color:rgba(232,160,32,.35);}
+.lv-n{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text3);}
+.lv-box.on .lv-n{color:var(--gold);}
+.lv-p{font-size:9px;color:var(--text3);margin-top:2px;}
+.lv-box.on .lv-p{color:var(--gold2);}
+.lv-ck{font-size:9px;color:var(--green);margin-top:1px;}
+
+/* BOOSTER */
+.bst{background:rgba(0,200,240,.06);border:1px solid rgba(0,200,240,.2);border-radius:var(--r);padding:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.bl{font-size:10px;color:var(--text3);margin-bottom:4px;}
+.bv{font-size:13px;font-weight:600;color:var(--cyan);}
+
+/* REF BOX */
+.ref-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--cyan);word-break:break-all;line-height:1.5;}
+
+/* PACKAGES */
+.pkg-list{display:flex;flex-direction:column;gap:9px;}
+.pkg-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:13px 14px;display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden;}
+.pkg-item::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--gold2));}
+.pkg-l{padding-left:8px;}
+.pkg-id{font-size:10px;color:var(--text3);margin-bottom:3px;}
+.pkg-amt{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--gold);}
+.pkg-date{font-size:10px;color:var(--text3);margin-top:3px;}
+.pkg-r{text-align:right;}
+.pkg-rate{font-size:13px;font-weight:600;color:var(--green);}
+.pkg-s{font-size:10px;color:var(--text3);margin-top:3px;}
+
+/* TEAM LEGS */
+.legs{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.leg{border-radius:var(--r);padding:16px;text-align:center;}
+.leg.str{background:rgba(0,224,138,.07);border:1px solid rgba(0,224,138,.2);}
+.leg.wk{background:rgba(0,200,240,.07);border:1px solid rgba(0,200,240,.2);}
+.leg-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;}
+.leg.str .leg-num{color:var(--green);}.leg.wk .leg-num{color:var(--cyan);}
+.leg-lbl{font-size:11px;color:var(--text3);margin-top:4px;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;min-width:320px;}
+thead th{background:var(--bg2);padding:9px 11px;text-align:left;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;font-weight:600;}
+tbody td{padding:9px 11px;border-top:1px solid var(--border);font-size:12px;color:var(--text);white-space:nowrap;}
+tbody tr:hover td{background:rgba(255,255,255,.02);}
+.bdg{padding:3px 7px;border-radius:99px;font-size:10px;font-weight:600;}
+.bg{background:rgba(232,160,32,.15);color:var(--gold);}
+.bgg{background:rgba(0,224,138,.12);color:var(--green);}
+.bc{background:rgba(0,200,240,.12);color:var(--cyan);}
+.bp{background:rgba(155,109,255,.15);color:var(--purple);}
+.bo{background:rgba(255,140,66,.15);color:var(--orange);}
+.br{background:rgba(255,69,96,.12);color:var(--red);}
+
+/* INCOME FILTERS */
+.ifilters{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;margin-bottom:13px;}
+.ifilters::-webkit-scrollbar{display:none;}
+.ifbtn{flex-shrink:0;padding:7px 13px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;}
+.ifbtn.on{background:var(--golddim);border-color:rgba(232,160,32,.35);color:var(--gold);}
+
+/* FORM */
+.fg{margin-bottom:13px;}
+.fl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:block;}
+.fi{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 13px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+.fi:focus{border-color:var(--gold);}
+.fi::placeholder{color:var(--text3);}
+.fi[type=number]::-webkit-inner-spin-button{display:none;}
+.fh{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5;}
+.fprev{background:var(--greendim);border:1px solid rgba(0,224,138,.2);border-radius:var(--r);padding:11px 13px;margin-top:9px;font-size:13px;color:var(--green);}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-ov.open{opacity:1;pointer-events:all;}
+.modal-sh{width:100%;max-width:480px;background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border2);padding:0 0 max(24px,env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:92vh;overflow-y:auto;}
+.modal-ov.open .modal-sh{transform:translateY(0);}
+.modal-handle{width:36px;height:4px;border-radius:99px;background:var(--border2);margin:12px auto 0;}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text);padding:16px 18px 2px;}
+.modal-body{padding:14px 18px 0;}
+
+/* SUCCESS POPUP */
+.succ-ov{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .2s;padding:20px;}
+.succ-ov.show{opacity:1;pointer-events:all;}
+.succ-inner{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:36px 28px;text-align:center;width:100%;max-width:310px;animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1);}
+.succ-icon{font-size:52px;margin-bottom:12px;}
+.succ-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;margin-bottom:7px;}
+.succ-msg{color:var(--text2);font-size:13px;line-height:1.6;margin-bottom:22px;}
+
+/* TOAST */
+#toastWrap{position:fixed;bottom:20px;left:12px;right:12px;z-index:500;display:flex;flex-direction:column;gap:7px;pointer-events:none;align-items:stretch;}
+.toast{background:var(--card2);border-radius:var(--r);padding:13px 15px;border-left:3px solid var(--gold);box-shadow:var(--shadow);font-size:13px;animation:toastUp .3s cubic-bezier(.34,1.56,.64,1);pointer-events:all;color:var(--text);line-height:1.4;}
+.toast.success{border-left-color:var(--green);}
+.toast.error{border-left-color:var(--red);}
+.toast.info{border-left-color:var(--cyan);}
+
+/* MISC */
+.muted{color:var(--text3);}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.empty{text-align:center;padding:32px 20px;color:var(--text3);font-size:13px;}
+.empty-icon{font-size:32px;margin-bottom:9px;}
+.divider{height:1px;background:var(--border);margin:12px 0;}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ CONNECT SCREEN ═══════════════ -->
+<!-- CONNECT -->
 <div id="connectScreen">
-  <div class="connect-box">
-    <div class="connect-icon">🔷</div>
-    <h2>BillionPolROI</h2>
-    <p>Native POL staking platform on Polygon. Connect your MetaMask wallet to access your dashboard.</p>
-    <div class="contract-addr">Contract: 0xB373d35Db18fAe371280E2A2cE71ade95703EaaE</div>
-    <button class="btn btn-gold" style="width:100%;justify-content:center;padding:14px;" onclick="connectWallet()">
-      <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1 1 2 12a10 10 0 0 1 20 0Z" stroke="currentColor" stroke-width="2"/><path d="m8 12 3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Connect MetaMask
-    </button>
-    <p style="margin-top:14px;font-size:12px;color:var(--muted);">Polygon Mainnet · Chain ID 137 · Native POL</p>
+<div class="c-wrap">
+<div class="c-card">
+  <div class="c-icon">₿</div>
+  <div class="c-title">BillionPolROI</div>
+  <div class="c-sub">Native POL staking on Polygon Mainnet. Connect your wallet to access your dashboard.</div>
+  <div class="c-addr">0xB373d35Db18fAe371280E2A2cE71ade95703EaaE</div>
+  <div class="c-stats">
+    <div class="c-stat"><div class="c-stat-v" id="csTU">—</div><div class="c-stat-l">Total Users</div></div>
+    <div class="c-stat"><div class="c-stat-v" id="csTP">—</div><div class="c-stat-l">Packages</div></div>
+    <div class="c-stat"><div class="c-stat-v" style="color:var(--green);" id="csCB">—</div><div class="c-stat-l">Contract Balance</div></div>
+    <div class="c-stat"><div class="c-stat-v" style="color:var(--cyan);" id="csOW">—</div><div class="c-stat-l">Ownership</div></div>
   </div>
+  <button class="btn btn-gold btn-block" id="connectBtn" onclick="connectWallet()">&#128274; Connect MetaMask</button>
+  <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:12px;">Polygon Mainnet · Chain ID 137 · Native POL</p>
+</div>
+</div>
 </div>
 
-<!-- ═══════════════ MAIN APP ═══════════════ -->
+<!-- MAIN APP -->
 <div id="mainApp">
 
-  <!-- Header -->
-  <div class="header">
-    <div class="logo">Billion<span>Pol</span>ROI</div>
-    <div class="header-right">
-      <div class="net-badge"><span class="net-dot"></span>Polygon</div>
-      <button class="btn btn-outline btn-sm" onclick="refreshAll()">⟳ Refresh</button>
-      <button class="btn btn-outline btn-sm" id="walletBtn" onclick="disconnectWallet()">Disconnect</button>
-    </div>
-  </div>
-
-  <div class="container">
-
-    <!-- Wallet Bar -->
-    <div class="wallet-bar">
-      <div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">CONNECTED WALLET</div>
-        <div class="wallet-addr" id="walletAddr">—</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">WALLET BALANCE</div>
-        <div class="wallet-bal" id="walletBal">— POL</div>
-      </div>
-    </div>
-
-    <!-- Register Banner (shown if not registered) -->
-    <div class="reg-banner" id="regBanner" style="display:none;">
-      <p>⚠️ Your wallet is not registered. Register first before buying a package.</p>
-      <button class="btn btn-red btn-sm" onclick="openTab('actionsTab');showToast('Enter a referrer address and click Register','info')">Register Now</button>
-    </div>
-
-    <!-- Global Stats -->
-    <div class="global-stats">
-      <div class="stat-card">
-        <div class="stat-label">Total Users</div>
-        <div class="stat-value cyan" id="gTotalUsers">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Packages</div>
-        <div class="stat-value" id="gTotalPkgs">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Withdrawals</div>
-        <div class="stat-value" id="gTotalWds">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Contract Balance</div>
-        <div class="stat-value green" id="gContractBal">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Ownership</div>
-        <div class="stat-value green" id="gOwnership">—</div>
-      </div>
-    </div>
-
-    <!-- Pending ROI Banner -->
-    <div class="roi-banner">
-      <div>
-        <div class="roi-label">PENDING ROI (LIVE)</div>
-        <div class="roi-amount" id="pendingROI">0.000000 POL</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px;">Accumulates every second</div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-gold" onclick="claimROI()" id="claimBtn">
-          <span id="claimSpinner" style="display:none;" class="spin"></span>
-          Claim ROI
-        </button>
-        <button class="btn btn-outline" onclick="openTab('compoundTab')">Compound</button>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab active" onclick="openTab('dashTab')" id="dashTab-btn">📊 Dashboard</button>
-      <button class="tab" onclick="openTab('packagesTab')" id="packagesTab-btn">📦 Packages</button>
-      <button class="tab" onclick="openTab('teamTab')" id="teamTab-btn">👥 Team</button>
-      <button class="tab" onclick="openTab('incomeTab')" id="incomeTab-btn">💰 Income</button>
-      <button class="tab" onclick="openTab('actionsTab')" id="actionsTab-btn">⚡ Actions</button>
-      <button class="tab" onclick="openTab('historyTab')" id="historyTab-btn">📋 History</button>
-    </div>
-
-    <!-- ── TAB: DASHBOARD ── -->
-    <div class="tab-content active" id="dashTab">
-
-      <!-- User Stats -->
-      <div class="panel">
-        <div class="panel-title">My Statistics</div>
-        <div class="user-stats">
-          <div class="u-stat">
-            <div class="u-stat-label">Total Invested</div>
-            <div class="u-stat-value gold" id="u-selfTotal">—</div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">Earning Cap</div>
-            <div class="u-stat-value" id="u-totalTopay">—</div>
-            <div class="progress-bar"><div class="progress-fill" id="capProgress" style="width:0%"></div></div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">Total Earned</div>
-            <div class="u-stat-value green" id="u-totalIncome">—</div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">Withdrawable</div>
-            <div class="u-stat-value cyan" id="u-unpaidIncome">—</div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">Cap Type</div>
-            <div class="u-stat-value" id="u-capType">—</div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">Leader Status</div>
-            <div class="u-stat-value" id="u-isLeader">—</div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">Current Rank</div>
-            <div class="u-stat-value gold" id="u-rank">—</div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">User ID</div>
-            <div class="u-stat-value" id="u-userId">—</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Income Breakdown -->
-      <div class="panel">
-        <div class="panel-title">Income Breakdown</div>
-        <div class="income-grid">
-          <div class="income-item">
-            <div class="u-stat-label">ROI Income</div>
-            <div class="u-stat-value gold" id="u-roi">—</div>
-          </div>
-          <div class="income-item cyan">
-            <div class="u-stat-label">Direct Commission</div>
-            <div class="u-stat-value cyan" id="u-direct">—</div>
-          </div>
-          <div class="income-item green">
-            <div class="u-stat-label">Level Income</div>
-            <div class="u-stat-value green" id="u-level">—</div>
-          </div>
-          <div class="income-item orange">
-            <div class="u-stat-label">Booster Bonus</div>
-            <div class="u-stat-value" style="color:#fd9644" id="u-booster">—</div>
-          </div>
-          <div class="income-item purple">
-            <div class="u-stat-label">Leader Bonus</div>
-            <div class="u-stat-value" style="color:#a55eea" id="u-leader">—</div>
-          </div>
-          <div class="income-item red">
-            <div class="u-stat-label">Rank Bonus</div>
-            <div class="u-stat-value" style="color:#ff6b81" id="u-rankIncome">—</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Level Unlock Status -->
-      <div class="panel">
-        <div class="panel-title">Level Unlock Status</div>
-        <div class="level-grid" id="levelGrid">
-          <!-- Filled by JS -->
-        </div>
-      </div>
-
-      <!-- Booster Status -->
-      <div class="panel">
-        <div class="panel-title">Booster Status</div>
-        <div class="booster-card" id="boosterCard">
-          <div style="font-size:13px;color:var(--muted);">Loading booster data...</div>
-        </div>
-      </div>
-
-      <!-- Referral Link -->
-      <div class="panel">
-        <div class="panel-title">My Referral Link</div>
-        <div class="ref-box" id="refLinkBox">Loading...</div>
-        <button class="btn btn-cyan btn-sm" style="margin-top:10px;" onclick="copyRefLink()">Copy Link</button>
-      </div>
-
-    </div>
-
-    <!-- ── TAB: PACKAGES ── -->
-    <div class="tab-content" id="packagesTab">
-      <div class="panel">
-        <div class="panel-title">My Packages</div>
-        <div class="pkg-grid" id="pkgGrid">
-          <div style="color:var(--muted);font-size:13px;">Loading packages...</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── TAB: TEAM ── -->
-    <div class="tab-content" id="teamTab">
-      <div class="panel">
-        <div class="panel-title">Team Overview</div>
-        <div class="user-stats" style="margin-bottom:20px;">
-          <div class="u-stat">
-            <div class="u-stat-label">Direct Referrals</div>
-            <div class="u-stat-value gold" id="t-directs">—</div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">Total Team Size</div>
-            <div class="u-stat-value cyan" id="t-team">—</div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">Direct Business</div>
-            <div class="u-stat-value green" id="t-directBiz">—</div>
-          </div>
-          <div class="u-stat">
-            <div class="u-stat-label">Team Business</div>
-            <div class="u-stat-value" id="t-teamBiz">—</div>
-          </div>
-        </div>
-        <div class="team-split">
-          <div class="leg-card strong">
-            <div class="leg-num" id="t-strong">—</div>
-            <div class="leg-label">Strong Leg</div>
-          </div>
-          <div class="leg-card weaker">
-            <div class="leg-num" id="t-weaker">—</div>
-            <div class="leg-label">Weaker Leg</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── TAB: INCOME ── -->
-    <div class="tab-content" id="incomeTab">
-      <div class="panel">
-        <div class="panel-title">Income Records</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;" id="incomeFilterBtns">
-          <button class="btn btn-gold btn-sm" onclick="loadIncome(1)">ROI</button>
-          <button class="btn btn-cyan btn-sm" onclick="loadIncome(6)">Direct</button>
-          <button class="btn btn-green btn-sm" onclick="loadIncome(2)">Level</button>
-          <button class="btn btn-outline btn-sm" onclick="loadIncome(4)" style="color:#fd9644;border-color:#fd9644;">Booster</button>
-          <button class="btn btn-outline btn-sm" onclick="loadIncome(5)" style="color:#a55eea;border-color:#a55eea;">Leader</button>
-          <button class="btn btn-outline btn-sm" onclick="loadIncome(3)" style="color:#ff6b81;border-color:#ff6b81;">Rank</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Level</th>
-                <th>Rate</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody id="incomeTbody">
-              <tr><td colspan="6" style="text-align:center;color:var(--muted);">Select an income type above</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── TAB: ACTIONS ── -->
-    <div class="tab-content" id="actionsTab">
-      <div class="action-grid">
-
-        <!-- Register -->
-        <div class="action-card">
-          <h4>Register</h4>
-          <div class="form-group">
-            <label class="form-label">Referrer Address</label>
-            <input class="form-input" id="regReferrer" placeholder="0x..."/>
-            <div class="form-hint">Enter the wallet address of the person who referred you</div>
-          </div>
-          <button class="btn btn-gold" style="margin-top:14px;width:100%;justify-content:center;" onclick="doRegister()" id="regBtn">
-            <span id="regSpinner" style="display:none;" class="spin"></span>Register
-          </button>
-        </div>
-
-        <!-- Buy Package -->
-        <div class="action-card">
-          <h4>Buy Package</h4>
-          <div class="form-group">
-            <label class="form-label">Amount (POL)</label>
-            <input class="form-input" id="buyAmount" type="number" min="10" step="1" placeholder="Min 10 POL"/>
-            <div class="form-hint">Min: 10 POL · No maximum · Multiple packages allowed</div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;font-size:11px;color:var(--muted);">
-            <span>10-500 POL → 1.0%/day</span>
-            <span>501-3000 POL → 1.2%/day</span>
-            <span>3001-8000 POL → 1.5%/day</span>
-            <span>8001-15000 POL → 1.8%/day</span>
-            <span>15001-20000 POL → 2.0%/day</span>
-            <span>>20000 POL → 2.5%/day</span>
-          </div>
-          <button class="btn btn-gold" style="margin-top:14px;width:100%;justify-content:center;" onclick="doBuyPackage()" id="buyBtn">
-            <span id="buySpinner" style="display:none;" class="spin"></span>Buy Package
-          </button>
-        </div>
-
-        <!-- Compound -->
-        <div class="action-card" id="compoundTab">
-          <h4>Compound (Reinvest)</h4>
-          <div class="u-stat" style="margin-bottom:12px;">
-            <div class="u-stat-label">Available to Compound</div>
-            <div class="u-stat-value cyan" id="cmpBalance">—</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Amount to Compound (POL)</label>
-            <input class="form-input" id="cmpAmount" type="number" min="10" step="1" placeholder="Min 10 POL"/>
-            <div class="form-hint">Admin: 13% · Your net package: 87% · No referral fee</div>
-          </div>
-          <button class="btn btn-cyan" style="margin-top:14px;width:100%;justify-content:center;" onclick="doCompound()" id="cmpBtn">
-            <span id="cmpSpinner" style="display:none;" class="spin"></span>Compound
-          </button>
-        </div>
-
-        <!-- Withdraw -->
-        <div class="action-card">
-          <h4>Withdraw Income</h4>
-          <div class="u-stat" style="margin-bottom:12px;">
-            <div class="u-stat-label">Withdrawable Balance</div>
-            <div class="u-stat-value green" id="wdBalance">—</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Amount to Withdraw (POL)</label>
-            <input class="form-input" id="wdAmount" type="number" min="1" step="1" placeholder="Any amount"/>
-            <div class="form-hint">You receive 90% · 6% admin · 4% stays in contract</div>
-          </div>
-          <div id="wdPreview" style="font-size:12px;color:var(--muted);margin-top:6px;display:none;">
-            You will receive: <span id="wdReceiveAmt" class="gold" style="font-weight:600;"></span> POL
-          </div>
-          <button class="btn btn-green" style="margin-top:14px;width:100%;justify-content:center;" onclick="doWithdraw()" id="wdBtn">
-            <span id="wdSpinner" style="display:none;" class="spin"></span>Withdraw
-          </button>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ── TAB: HISTORY ── -->
-    <div class="tab-content" id="historyTab">
-      <div class="panel">
-        <div class="panel-title">Withdrawal History</div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Gross Amount</th>
-                <th>You Received</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody id="wdTbody">
-              <tr><td colspan="4" style="text-align:center;color:var(--muted);">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
+<div class="hdr">
+  <div class="logo">BillionPolROI</div>
+  <div class="hdr-r">
+    <div class="net-pill"><span class="net-dot"></span>Polygon</div>
+    <div class="w-chip" onclick="openModal('mWallet')">&#128100; <span id="hdrAddr">—</span></div>
   </div>
 </div>
 
-<!-- Toast container -->
-<div id="toast"></div>
+<div id="regAlert" class="alert alert-warn" style="display:none;">
+  <span class="alert-txt">&#9888; Not registered yet</span>
+  <button class="btn btn-red btn-xs" onclick="openModal('mRegister')">Register</button>
+</div>
+
+<div class="gstats">
+  <div class="gstat"><div class="gstat-v c" id="gU">—</div><div class="gstat-l">Users</div></div>
+  <div class="gstat"><div class="gstat-v" id="gP">—</div><div class="gstat-l">Packages</div></div>
+  <div class="gstat"><div class="gstat-v g" id="gB">—</div><div class="gstat-l">Contract POL</div></div>
+</div>
+
+<div class="roi-hero">
+  <div class="roi-lbl">PENDING ROI — LIVE</div>
+  <div class="roi-amt" id="pendingROI">0.000000 POL</div>
+  <div class="roi-sub">Accumulates every second · Claim any time</div>
+  <div class="roi-btns">
+    <button class="btn btn-gold" id="claimBtn" onclick="doClaimROI()"><span id="claimSpin" style="display:none;" class="spin-icon"></span>Claim ROI</button>
+    <button class="btn btn-ghost" onclick="openModal('mCompound')">Compound</button>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="switchTab('dashboard',this)">Dashboard</button>
+  <button class="nav-tab" onclick="switchTab('packages',this)">Packages</button>
+  <button class="nav-tab" onclick="switchTab('team',this)">Team</button>
+  <button class="nav-tab" onclick="switchTab('income',this)">Income</button>
+  <button class="nav-tab" onclick="switchTab('history',this)">History</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="tab-panel active" id="tab-dashboard">
+<div class="tab-inner">
+
+  <div class="card">
+    <div class="card-hd">My Wallet</div>
+    <div class="card-bd">
+      <div class="sg" style="margin-bottom:12px;">
+        <div class="si"><div class="sl">Wallet Balance</div><div class="sv big gold" id="wBal">—</div></div>
+        <div class="si"><div class="sl">Withdrawable</div><div class="sv big green" id="uUnpaid">—</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="btn btn-green btn-sm" onclick="openModal('mWithdraw')">Withdraw</button>
+        <button class="btn btn-cyan btn-sm" onclick="openModal('mBuy')">Buy Package</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Investment</div>
+    <div class="card-bd">
+      <div class="sg" style="margin-bottom:11px;">
+        <div class="si"><div class="sl">Total Invested</div><div class="sv gold" id="uSelf">—</div></div>
+        <div class="si"><div class="sl">Total Earned</div><div class="sv green" id="uTotInc">—</div></div>
+        <div class="si"><div class="sl">Cap Type</div><div class="sv" id="uCap">—</div></div>
+        <div class="si"><div class="sl">User ID</div><div class="sv mono" id="uId">—</div></div>
+      </div>
+      <div class="sl">Earning Cap Progress</div>
+      <div class="prog-track"><div class="prog-fill" id="capBar" style="width:0%"></div></div>
+      <div class="prog-meta"><span id="capPct">0%</span><span id="capMax">—</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Income Breakdown</div>
+    <div class="card-bd">
+      <div class="ic-grid">
+        <div class="ic"><div class="ic-l">ROI Income</div><div class="ic-v" id="iROI">—</div></div>
+        <div class="ic c"><div class="ic-l">Direct</div><div class="ic-v" id="iDirect">—</div></div>
+        <div class="ic g"><div class="ic-l">Level</div><div class="ic-v" id="iLevel">—</div></div>
+        <div class="ic o"><div class="ic-l">Booster</div><div class="ic-v" id="iBooster">—</div></div>
+        <div class="ic p"><div class="ic-l">Leader</div><div class="ic-v" id="iLeader">—</div></div>
+        <div class="ic r"><div class="ic-l">Rank</div><div class="ic-v" id="iRank">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Status</div>
+    <div class="card-bd">
+      <div class="sg">
+        <div class="si"><div class="sl">Leader</div><div class="sv" id="sLeader">—</div></div>
+        <div class="si"><div class="sl">Rank</div><div class="sv gold" id="sRank">—</div></div>
+        <div class="si"><div class="sl">Level Unlocked</div><div class="sv cyan" id="sLevel">—</div></div>
+        <div class="si"><div class="sl">Booster Type</div><div class="sv" id="sBooster">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Level Income Unlock</div>
+    <div class="card-bd">
+      <div class="lv-row" id="lvGrid"></div>
+      <div class="fh" style="margin-top:9px;">L1=2% L2=5% L3=8% L4=10% L5=12% L6=13% L7=15%</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Booster Status</div>
+    <div class="card-bd">
+      <div class="bst">
+        <div><div class="bl">Type</div><div class="bv" id="bType">—</div></div>
+        <div><div class="bl">Rate/Day</div><div class="bv" id="bRate">—</div></div>
+        <div><div class="bl">Pending</div><div class="bv" id="bPending">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">My Referral Link</div>
+    <div class="card-bd">
+      <div class="ref-box" id="refBox">—</div>
+      <button class="btn btn-cyan btn-sm" style="margin-top:10px;width:100%;" onclick="copyRef()">Copy Referral Link</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- PACKAGES -->
+<div class="tab-panel" id="tab-packages">
+<div class="tab-inner">
+  <div class="card">
+    <div class="card-hd">My Packages</div>
+    <div class="card-bd">
+      <div class="pkg-list" id="pkgList"><div class="empty"><div class="empty-icon">&#128230;</div>Loading...</div></div>
+    </div>
+  </div>
+  <button class="btn btn-gold btn-block" style="margin-bottom:12px;" onclick="openModal('mBuy')">+ Buy New Package</button>
+</div>
+</div>
+
+<!-- TEAM -->
+<div class="tab-panel" id="tab-team">
+<div class="tab-inner">
+  <div class="card">
+    <div class="card-hd">Team Overview</div>
+    <div class="card-bd">
+      <div class="sg" style="margin-bottom:13px;">
+        <div class="si"><div class="sl">Direct Referrals</div><div class="sv big gold" id="tDir">—</div></div>
+        <div class="si"><div class="sl">Total Team</div><div class="sv big cyan" id="tTeam">—</div></div>
+        <div class="si"><div class="sl">Direct Business</div><div class="sv green" id="tDB">—</div></div>
+        <div class="si"><div class="sl">Team Business</div><div class="sv" id="tTB">—</div></div>
+      </div>
+      <div class="legs">
+        <div class="leg str"><div class="leg-num" id="tStr">—</div><div class="leg-lbl">&#128170; Strong Leg</div></div>
+        <div class="leg wk"><div class="leg-num" id="tWk">—</div><div class="leg-lbl">&#128312; Weaker Leg</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Share &amp; Grow</div>
+    <div class="card-bd">
+      <div class="ref-box" id="refBox2">—</div>
+      <button class="btn btn-cyan btn-sm" style="margin-top:10px;width:100%;" onclick="copyRef()">Copy Referral Link</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- INCOME -->
+<div class="tab-panel" id="tab-income">
+<div class="tab-inner">
+  <div class="card">
+    <div class="card-hd">Income Records</div>
+    <div class="card-bd">
+      <div class="ifilters">
+        <button class="ifbtn on" onclick="loadIncome(1,this)">ROI</button>
+        <button class="ifbtn" onclick="loadIncome(6,this)">Direct</button>
+        <button class="ifbtn" onclick="loadIncome(2,this)">Level</button>
+        <button class="ifbtn" onclick="loadIncome(4,this)">Booster</button>
+        <button class="ifbtn" onclick="loadIncome(5,this)">Leader</button>
+        <button class="ifbtn" onclick="loadIncome(3,this)">Rank</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Type</th><th>Amount</th><th>Lvl</th><th>Date</th></tr></thead>
+          <tbody id="incTbody"><tr><td colspan="5" class="empty">Select a type above</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- HISTORY -->
+<div class="tab-panel" id="tab-history">
+<div class="tab-inner">
+  <div class="card">
+    <div class="card-hd">Withdrawal History</div>
+    <div class="card-bd">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Amount</th><th>Received</th><th>Date</th></tr></thead>
+          <tbody id="wdTbody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- /mainApp -->
+
+<!-- MODALS -->
+<div class="modal-ov" id="mRegister" onclick="closeOv(event,'mRegister')">
+<div class="modal-sh">
+  <div class="modal-handle"></div>
+  <div class="modal-title">Register Account</div>
+  <div class="modal-body" style="padding-bottom:24px;">
+    <div class="fg"><label class="fl">Referrer Wallet Address</label><input class="fi" id="regRef" placeholder="0x..."/><div class="fh">Enter the address of the person who referred you</div></div>
+    <button class="btn btn-gold btn-block" id="regBtn" onclick="doRegister()"><span id="regSpin" style="display:none;" class="spin-icon"></span>Register Now</button>
+  </div>
+</div>
+</div>
+
+<div class="modal-ov" id="mBuy" onclick="closeOv(event,'mBuy')">
+<div class="modal-sh">
+  <div class="modal-handle"></div>
+  <div class="modal-title">Buy Package</div>
+  <div class="modal-body" style="padding-bottom:24px;">
+    <div class="fg"><label class="fl">Amount (POL)</label><input class="fi" id="buyAmt" type="number" min="10" step="1" placeholder="Min 10 POL" oninput="updateBuyPrev()"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:13px;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--text3);">10-500 POL<br/><span style="color:var(--gold);font-weight:600;">1.0%/day</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--text3);">501-3000 POL<br/><span style="color:var(--gold);font-weight:600;">1.2%/day</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--text3);">3001-8000 POL<br/><span style="color:var(--gold);font-weight:600;">1.5%/day</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--text3);">8001-15000 POL<br/><span style="color:var(--gold);font-weight:600;">1.8%/day</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--text3);">15001-20000 POL<br/><span style="color:var(--gold);font-weight:600;">2.0%/day</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--text3);">&gt;20000 POL<br/><span style="color:var(--gold);font-weight:600;">2.5%/day</span></div>
+    </div>
+    <div id="buyPrev" class="fprev" style="display:none;"></div>
+    <button class="btn btn-gold btn-block" id="buyBtn" onclick="doBuyPackage()" style="margin-top:13px;"><span id="buySpin" style="display:none;" class="spin-icon"></span>Confirm Purchase</button>
+  </div>
+</div>
+</div>
+
+<div class="modal-ov" id="mCompound" onclick="closeOv(event,'mCompound')">
+<div class="modal-sh">
+  <div class="modal-handle"></div>
+  <div class="modal-title">Compound (Reinvest)</div>
+  <div class="modal-body" style="padding-bottom:24px;">
+    <div class="si" style="margin-bottom:13px;"><div class="sl">Available Balance</div><div class="sv big gold" id="cmpBal">—</div></div>
+    <div class="fg"><label class="fl">Amount to Compound (POL)</label><input class="fi" id="cmpAmt" type="number" min="10" step="1" placeholder="Min 10 POL" oninput="updateCmpPrev()"/><div class="fh">Admin: 13% · Net package: 87% · No referral fee</div></div>
+    <div id="cmpPrev" class="fprev" style="display:none;"></div>
+    <button class="btn btn-cyan btn-block" id="cmpBtn" onclick="doCompound()" style="margin-top:13px;"><span id="cmpSpin" style="display:none;" class="spin-icon"></span>Compound Now</button>
+  </div>
+</div>
+</div>
+
+<div class="modal-ov" id="mWithdraw" onclick="closeOv(event,'mWithdraw')">
+<div class="modal-sh">
+  <div class="modal-handle"></div>
+  <div class="modal-title">Withdraw Income</div>
+  <div class="modal-body" style="padding-bottom:24px;">
+    <div class="si" style="margin-bottom:13px;"><div class="sl">Withdrawable Balance</div><div class="sv big green" id="wdBal">—</div></div>
+    <div class="fg"><label class="fl">Amount (POL)</label><input class="fi" id="wdAmt" type="number" min="0.1" step="0.1" placeholder="Any amount" oninput="updateWdPrev()"/><div class="fh">You receive 90% · 6% admin · 4% stays in contract</div></div>
+    <div id="wdPrev" class="fprev" style="display:none;"></div>
+    <button class="btn btn-green btn-block" id="wdBtn" onclick="doWithdraw()" style="margin-top:13px;"><span id="wdSpin" style="display:none;" class="spin-icon"></span>Withdraw Now</button>
+  </div>
+</div>
+</div>
+
+<div class="modal-ov" id="mWallet" onclick="closeOv(event,'mWallet')">
+<div class="modal-sh">
+  <div class="modal-handle"></div>
+  <div class="modal-title">Wallet</div>
+  <div class="modal-body" style="padding-bottom:24px;">
+    <div class="si" style="margin-bottom:9px;"><div class="sl">Address</div><div class="sv mono" style="font-size:11px;word-break:break-all;" id="wInfoAddr">—</div></div>
+    <div class="si" style="margin-bottom:14px;"><div class="sl">Balance</div><div class="sv big gold" id="wInfoBal">—</div></div>
+    <button class="btn btn-outline btn-block" onclick="disconnectWallet()">Disconnect Wallet</button>
+  </div>
+</div>
+</div>
+
+<!-- SUCCESS POPUP -->
+<div class="succ-ov" id="succOv">
+<div class="succ-inner">
+  <div class="succ-icon" id="succIcon">✅</div>
+  <div class="succ-title" id="succTitle">Success!</div>
+  <div class="succ-msg" id="succMsg">Transaction confirmed.</div>
+  <button class="btn btn-gold btn-block" onclick="closeSucc()">Done</button>
+</div>
+</div>
+
+<div id="toastWrap"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-//  CONFIG
-// ═══════════════════════════════════════════════════════
-const CONTRACT_ADDR = "0xB373d35Db18fAe371280E2A2cE71ade95703EaaE";
-const CHAIN_ID      = 137;
-const CHAIN_HEX     = "0x89";
-const RPC_URL       = "https://polygon-rpc.com";
-const SITE_URL      = window.location.origin + window.location.pathname;
+const CONTRACT="0xB373d35Db18fAe371280E2A2cE71ade95703EaaE";
+const CHAIN_HEX="0x89";
+const SITE=window.location.origin+window.location.pathname;
+const ABI=[{"inputs":[{"internalType":"address payable","name":"_admin1","type":"address"},{"internalType":"address payable","name":"_admin2","type":"address"},{"internalType":"address payable","name":"_admin3","type":"address"},{"internalType":"address payable","name":"_rootUser","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"slot","type":"uint256"},{"indexed":true,"internalType":"address","name":"newAdmin","type":"address"}],"name":"AdminUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"pkgId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"netPkgAmount","type":"uint256"}],"name":"Compounded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"userId","type":"uint256"}],"name":"LeaderPromoted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"pkgId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"PackageBought","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"totalROI","type":"uint256"}],"name":"ROIClaimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"rank","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bonus","type":"uint256"}],"name":"RankAchieved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"address","name":"referrer","type":"address"},{"indexed":false,"internalType":"uint256","name":"userId","type":"uint256"}],"name":"Registered","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"wdId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"grossAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"netReceived","type":"uint256"}],"name":"Withdrawn","type":"event"},{"stateMutability":"payable","type":"fallback"},{"inputs":[],"name":"BOOSTER_HALVE_DAY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_PACKAGE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SECONDS_PER_DAY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"addrToId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"admin1","outputs":[{"internalType":"address payable","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"admin2","outputs":[{"internalType":"address payable","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"admin3","outputs":[{"internalType":"address payable","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"buyPackage","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"claimROI","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"compound","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"contractStartTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"directChildren","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getBoosterStatus","outputs":[{"internalType":"uint256","name":"boosterType","type":"uint256"},{"internalType":"uint256","name":"rateBps","type":"uint256"},{"internalType":"uint256","name":"pendingIncome","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"uid","type":"uint256"}],"name":"getDirectChildren","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"},{"internalType":"uint256","name":"incomeType","type":"uint256"}],"name":"getIncomeByUser","outputs":[{"components":[{"internalType":"uint256","name":"incomeId","type":"uint256"},{"internalType":"uint256","name":"toUserId","type":"uint256"},{"internalType":"address","name":"toUserAddress","type":"address"},{"internalType":"address","name":"fromUserAddress","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"uint256","name":"incomeType","type":"uint256"},{"internalType":"uint256","name":"rateBps","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"internalType":"struct BillionPolROI.IncomeRecord[]","name":"result","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getPackagesByUser","outputs":[{"components":[{"internalType":"uint256","name":"pkgId","type":"uint256"},{"internalType":"address","name":"userAddress","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"lastRoiTime","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"internalType":"struct BillionPolROI.Package[]","name":"result","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getPendingROI","outputs":[{"internalType":"uint256","name":"total","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getTeamSplit","outputs":[{"internalType":"uint256","name":"strong","type":"uint256"},{"internalType":"uint256","name":"weaker","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getUserByAddress","outputs":[{"components":[{"internalType":"uint256","name":"userId","type":"uint256"},{"internalType":"address","name":"userAddress","type":"address"},{"internalType":"uint256","name":"parentId","type":"uint256"},{"internalType":"uint256","name":"selfTotal","type":"uint256"},{"internalType":"uint256","name":"totalTopay","type":"uint256"},{"internalType":"uint256","name":"totalIncome","type":"uint256"},{"internalType":"uint256","name":"unpaidIncome","type":"uint256"},{"internalType":"uint256","name":"directCount","type":"uint256"},{"internalType":"uint256","name":"teamCount","type":"uint256"},{"internalType":"uint256","name":"directBusiness","type":"uint256"},{"internalType":"uint256","name":"teamBusiness","type":"uint256"},{"internalType":"uint256","name":"selfRoiTotal","type":"uint256"},{"internalType":"uint256","name":"boosterTotal","type":"uint256"},{"internalType":"uint256","name":"levelTotal","type":"uint256"},{"internalType":"uint256","name":"rankTotal","type":"uint256"},{"internalType":"uint256","name":"leaderTotal","type":"uint256"},{"internalType":"uint256","name":"directIncomeTotal","type":"uint256"},{"internalType":"uint256","name":"levelsno","type":"uint256"},{"internalType":"bool","name":"isLeader","type":"bool"},{"internalType":"uint256","name":"isThree","type":"uint256"},{"internalType":"uint256","name":"boosterRoiBps","type":"uint256"},{"internalType":"uint256","name":"ranknow","type":"uint256"},{"internalType":"uint256","name":"lastRoiTimestamp","type":"uint256"},{"internalType":"uint256","name":"lastRankTimestamp","type":"uint256"},{"internalType":"uint256","name":"lastBoosterTimestamp","type":"uint256"},{"internalType":"uint256","name":"joinTimestamp","type":"uint256"}],"internalType":"struct BillionPolROI.User","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getWithdrawalsByUser","outputs":[{"components":[{"internalType":"uint256","name":"wdId","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"grossAmount","type":"uint256"},{"internalType":"uint256","name":"userReceived","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"internalType":"struct BillionPolROI.Withdrawal[]","name":"result","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"idToAddr","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"incomeRecords","outputs":[{"internalType":"uint256","name":"incomeId","type":"uint256"},{"internalType":"uint256","name":"toUserId","type":"uint256"},{"internalType":"address","name":"toUserAddress","type":"address"},{"internalType":"address","name":"fromUserAddress","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"uint256","name":"incomeType","type":"uint256"},{"internalType":"uint256","name":"rateBps","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"isOwnershipRenounced","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"isRegistered","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"packages","outputs":[{"internalType":"uint256","name":"pkgId","type":"uint256"},{"internalType":"address","name":"userAddress","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"lastRoiTime","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"referralOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"totalIncomeRecords","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalPackages","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalUsers","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalWithdrawals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"newAdmin","type":"address"}],"name":"updateAdmin1","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"newAdmin","type":"address"}],"name":"updateAdmin2","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"newAdmin","type":"address"}],"name":"updateAdmin3","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"userWithdrawals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"users","outputs":[{"internalType":"uint256","name":"userId","type":"uint256"},{"internalType":"address","name":"userAddress","type":"address"},{"internalType":"uint256","name":"parentId","type":"uint256"},{"internalType":"uint256","name":"selfTotal","type":"uint256"},{"internalType":"uint256","name":"totalTopay","type":"uint256"},{"internalType":"uint256","name":"totalIncome","type":"uint256"},{"internalType":"uint256","name":"unpaidIncome","type":"uint256"},{"internalType":"uint256","name":"directCount","type":"uint256"},{"internalType":"uint256","name":"teamCount","type":"uint256"},{"internalType":"uint256","name":"directBusiness","type":"uint256"},{"internalType":"uint256","name":"teamBusiness","type":"uint256"},{"internalType":"uint256","name":"selfRoiTotal","type":"uint256"},{"internalType":"uint256","name":"boosterTotal","type":"uint256"},{"internalType":"uint256","name":"levelTotal","type":"uint256"},{"internalType":"uint256","name":"rankTotal","type":"uint256"},{"internalType":"uint256","name":"leaderTotal","type":"uint256"},{"internalType":"uint256","name":"directIncomeTotal","type":"uint256"},{"internalType":"uint256","name":"levelsno","type":"uint256"},{"internalType":"bool","name":"isLeader","type":"bool"},{"internalType":"uint256","name":"isThree","type":"uint256"},{"internalType":"uint256","name":"boosterRoiBps","type":"uint256"},{"internalType":"uint256","name":"ranknow","type":"uint256"},{"internalType":"uint256","name":"lastRoiTimestamp","type":"uint256"},{"internalType":"uint256","name":"lastRankTimestamp","type":"uint256"},{"internalType":"uint256","name":"lastBoosterTimestamp","type":"uint256"},{"internalType":"uint256","name":"joinTimestamp","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawIncome","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"withdrawals","outputs":[{"internalType":"uint256","name":"wdId","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"grossAmount","type":"uint256"},{"internalType":"uint256","name":"userReceived","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}];
 
-const ABI = [{"inputs":[{"internalType":"address payable","name":"_admin1","type":"address"},{"internalType":"address payable","name":"_admin2","type":"address"},{"internalType":"address payable","name":"_admin3","type":"address"},{"internalType":"address payable","name":"_rootUser","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"slot","type":"uint256"},{"indexed":true,"internalType":"address","name":"newAdmin","type":"address"}],"name":"AdminUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"pkgId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"netPkgAmount","type":"uint256"}],"name":"Compounded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"userId","type":"uint256"}],"name":"LeaderPromoted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"pkgId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"PackageBought","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"totalROI","type":"uint256"}],"name":"ROIClaimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"rank","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bonus","type":"uint256"}],"name":"RankAchieved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"address","name":"referrer","type":"address"},{"indexed":false,"internalType":"uint256","name":"userId","type":"uint256"}],"name":"Registered","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"wdId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"grossAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"netReceived","type":"uint256"}],"name":"Withdrawn","type":"event"},{"stateMutability":"payable","type":"fallback"},{"inputs":[],"name":"BOOSTER_HALVE_DAY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_PACKAGE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SECONDS_PER_DAY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"addrToId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"admin1","outputs":[{"internalType":"address payable","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"admin2","outputs":[{"internalType":"address payable","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"admin3","outputs":[{"internalType":"address payable","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"buyPackage","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"claimROI","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"compound","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"contractStartTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"directChildren","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getBoosterStatus","outputs":[{"internalType":"uint256","name":"boosterType","type":"uint256"},{"internalType":"uint256","name":"rateBps","type":"uint256"},{"internalType":"uint256","name":"pendingIncome","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"uid","type":"uint256"}],"name":"getDirectChildren","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"},{"internalType":"uint256","name":"incomeType","type":"uint256"}],"name":"getIncomeByUser","outputs":[{"components":[{"internalType":"uint256","name":"incomeId","type":"uint256"},{"internalType":"uint256","name":"toUserId","type":"uint256"},{"internalType":"address","name":"toUserAddress","type":"address"},{"internalType":"address","name":"fromUserAddress","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"uint256","name":"incomeType","type":"uint256"},{"internalType":"uint256","name":"rateBps","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"internalType":"struct BillionPolROI.IncomeRecord[]","name":"result","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getPackagesByUser","outputs":[{"components":[{"internalType":"uint256","name":"pkgId","type":"uint256"},{"internalType":"address","name":"userAddress","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"lastRoiTime","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"internalType":"struct BillionPolROI.Package[]","name":"result","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getPendingROI","outputs":[{"internalType":"uint256","name":"total","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getTeamSplit","outputs":[{"internalType":"uint256","name":"strong","type":"uint256"},{"internalType":"uint256","name":"weaker","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getUserByAddress","outputs":[{"components":[{"internalType":"uint256","name":"userId","type":"uint256"},{"internalType":"address","name":"userAddress","type":"address"},{"internalType":"uint256","name":"parentId","type":"uint256"},{"internalType":"uint256","name":"selfTotal","type":"uint256"},{"internalType":"uint256","name":"totalTopay","type":"uint256"},{"internalType":"uint256","name":"totalIncome","type":"uint256"},{"internalType":"uint256","name":"unpaidIncome","type":"uint256"},{"internalType":"uint256","name":"directCount","type":"uint256"},{"internalType":"uint256","name":"teamCount","type":"uint256"},{"internalType":"uint256","name":"directBusiness","type":"uint256"},{"internalType":"uint256","name":"teamBusiness","type":"uint256"},{"internalType":"uint256","name":"selfRoiTotal","type":"uint256"},{"internalType":"uint256","name":"boosterTotal","type":"uint256"},{"internalType":"uint256","name":"levelTotal","type":"uint256"},{"internalType":"uint256","name":"rankTotal","type":"uint256"},{"internalType":"uint256","name":"leaderTotal","type":"uint256"},{"internalType":"uint256","name":"directIncomeTotal","type":"uint256"},{"internalType":"uint256","name":"levelsno","type":"uint256"},{"internalType":"bool","name":"isLeader","type":"bool"},{"internalType":"uint256","name":"isThree","type":"uint256"},{"internalType":"uint256","name":"boosterRoiBps","type":"uint256"},{"internalType":"uint256","name":"ranknow","type":"uint256"},{"internalType":"uint256","name":"lastRoiTimestamp","type":"uint256"},{"internalType":"uint256","name":"lastRankTimestamp","type":"uint256"},{"internalType":"uint256","name":"lastBoosterTimestamp","type":"uint256"},{"internalType":"uint256","name":"joinTimestamp","type":"uint256"}],"internalType":"struct BillionPolROI.User","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"userAddr","type":"address"}],"name":"getWithdrawalsByUser","outputs":[{"components":[{"internalType":"uint256","name":"wdId","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"grossAmount","type":"uint256"},{"internalType":"uint256","name":"userReceived","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"internalType":"struct BillionPolROI.Withdrawal[]","name":"result","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"idToAddr","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"incomeRecords","outputs":[{"internalType":"uint256","name":"incomeId","type":"uint256"},{"internalType":"uint256","name":"toUserId","type":"uint256"},{"internalType":"address","name":"toUserAddress","type":"address"},{"internalType":"address","name":"fromUserAddress","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"level","type":"uint256"},{"internalType":"uint256","name":"incomeType","type":"uint256"},{"internalType":"uint256","name":"rateBps","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"isOwnershipRenounced","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"isRegistered","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"packages","outputs":[{"internalType":"uint256","name":"pkgId","type":"uint256"},{"internalType":"address","name":"userAddress","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"lastRoiTime","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"referralOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"register","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"totalIncomeRecords","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalPackages","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalUsers","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalWithdrawals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"newAdmin","type":"address"}],"name":"updateAdmin1","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"newAdmin","type":"address"}],"name":"updateAdmin2","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"newAdmin","type":"address"}],"name":"updateAdmin3","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"userWithdrawals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"users","outputs":[{"internalType":"uint256","name":"userId","type":"uint256"},{"internalType":"address","name":"userAddress","type":"address"},{"internalType":"uint256","name":"parentId","type":"uint256"},{"internalType":"uint256","name":"selfTotal","type":"uint256"},{"internalType":"uint256","name":"totalTopay","type":"uint256"},{"internalType":"uint256","name":"totalIncome","type":"uint256"},{"internalType":"uint256","name":"unpaidIncome","type":"uint256"},{"internalType":"uint256","name":"directCount","type":"uint256"},{"internalType":"uint256","name":"teamCount","type":"uint256"},{"internalType":"uint256","name":"directBusiness","type":"uint256"},{"internalType":"uint256","name":"teamBusiness","type":"uint256"},{"internalType":"uint256","name":"selfRoiTotal","type":"uint256"},{"internalType":"uint256","name":"boosterTotal","type":"uint256"},{"internalType":"uint256","name":"levelTotal","type":"uint256"},{"internalType":"uint256","name":"rankTotal","type":"uint256"},{"internalType":"uint256","name":"leaderTotal","type":"uint256"},{"internalType":"uint256","name":"directIncomeTotal","type":"uint256"},{"internalType":"uint256","name":"levelsno","type":"uint256"},{"internalType":"bool","name":"isLeader","type":"bool"},{"internalType":"uint256","name":"isThree","type":"uint256"},{"internalType":"uint256","name":"boosterRoiBps","type":"uint256"},{"internalType":"uint256","name":"ranknow","type":"uint256"},{"internalType":"uint256","name":"lastRoiTimestamp","type":"uint256"},{"internalType":"uint256","name":"lastRankTimestamp","type":"uint256"},{"internalType":"uint256","name":"lastBoosterTimestamp","type":"uint256"},{"internalType":"uint256","name":"joinTimestamp","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawIncome","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"withdrawals","outputs":[{"internalType":"uint256","name":"wdId","type":"uint256"},{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"grossAmount","type":"uint256"},{"internalType":"uint256","name":"userReceived","type":"uint256"},{"internalType":"uint256","name":"timeStamp","type":"uint256"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}];
+let provider,signer,contract,rc,walletAddr=null,roiInt=null,lastU=null;
+const fe=v=>parseFloat(ethers.formatEther(v));
+const f2=v=>fe(v).toFixed(2)+" POL";
+const f4=v=>fe(v).toFixed(4)+" POL";
+const f6=v=>fe(v).toFixed(6)+" POL";
+const fd=ts=>new Date(Number(ts)*1000).toLocaleDateString();
+const sh=a=>a?a.slice(0,6)+"..."+a.slice(-4):"—";
+const $=id=>document.getElementById(id);
+const set=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
 
-// ═══════════════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════════════
-let provider, signer, contract, readContract;
-let walletAddress = null;
-let roiInterval   = null;
-let lastPendingROI = 0n;
-
-// ═══════════════════════════════════════════════════════
-//  UTILITIES
-// ═══════════════════════════════════════════════════════
-const fmt  = v => parseFloat(ethers.formatEther(v)).toFixed(4) + " POL";
-const fmt2 = v => parseFloat(ethers.formatEther(v)).toFixed(2) + " POL";
-const fmt6 = v => parseFloat(ethers.formatEther(v)).toFixed(6) + " POL";
-const fmtDate = ts => new Date(Number(ts) * 1000).toLocaleString();
-const shortAddr = a => a ? a.slice(0,6)+"..."+a.slice(-4) : "—";
-
-function showToast(msg, type="info", dur=4000) {
-  const el = document.createElement("div");
-  el.className = `toast-msg ${type}`;
-  el.textContent = msg;
-  document.getElementById("toast").appendChild(el);
-  setTimeout(()=>el.remove(), dur);
+function toast(msg,type="info",dur=3500){
+  const el=document.createElement("div");
+  el.className="toast "+type;
+  el.textContent=msg;
+  $("toastWrap").appendChild(el);
+  setTimeout(()=>{el.style.opacity="0";el.style.transform="translateY(20px)";el.style.transition=".3s";setTimeout(()=>el.remove(),300);},dur);
 }
 
-function setBtn(id, loading, label) {
-  const btn = document.getElementById(id);
-  const spin = document.getElementById(id.replace("Btn","Spinner"));
-  if(!btn) return;
-  btn.disabled = loading;
-  if(spin) spin.style.display = loading ? "inline-block" : "none";
-  if(label) btn.lastChild.textContent = " " + label;
+function showSucc(icon,title,msg){
+  set("succIcon",icon);set("succTitle",title);set("succMsg",msg);
+  $("succOv").classList.add("show");
 }
+function closeSucc(){$("succOv").classList.remove("show");}
 
-function openTab(tabId) {
-  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  const el = document.getElementById(tabId);
-  if(el) el.classList.add("active");
-  const btn = document.getElementById(tabId+"-btn");
+function openModal(id){
+  $(id).classList.add("open");
+  document.body.style.overflow="hidden";
+  if(lastU){
+    if(id==="mWithdraw") set("wdBal",f2(lastU.unpaidIncome));
+    if(id==="mCompound") set("cmpBal",f2(lastU.unpaidIncome));
+  }
+}
+function closeModal(id){$(id).classList.remove("open");document.body.style.overflow="";}
+function closeOv(e,id){if(e.target.id===id)closeModal(id);}
+
+function setSpin(bid,sid,on){$(bid).disabled=on;$(sid).style.display=on?"inline-block":"none";}
+
+function switchTab(name,btn){
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(b=>b.classList.remove("active"));
+  $("tab-"+name).classList.add("active");
   if(btn) btn.classList.add("active");
-  if(tabId==="historyTab") loadWithdrawalHistory();
-  if(tabId==="packagesTab") loadPackages();
-  if(tabId==="teamTab") loadTeam();
+  if(name==="packages") loadPackages();
+  if(name==="team") loadTeam();
+  if(name==="history") loadHistory();
+  if(name==="income") loadIncome(1,document.querySelector(".ifbtn"));
 }
 
-// ═══════════════════════════════════════════════════════
-//  WALLET CONNECTION
-// ═══════════════════════════════════════════════════════
-async function connectWallet() {
-  if(!window.ethereum) { showToast("MetaMask not found. Please install it.","error"); return; }
-  try {
+async function loadConnectStats(){
+  try{
+    const rp=new ethers.JsonRpcProvider("https://polygon-rpc.com");
+    const c=new ethers.Contract(CONTRACT,ABI,rp);
+    const [tu,tp,cb,ir]=await Promise.all([c.totalUsers(),c.totalPackages(),c.getContractBalance(),c.isOwnershipRenounced()]);
+    set("csTU",tu.toString());set("csTP",tp.toString());
+    set("csCB",fe(cb).toFixed(0)+" POL");set("csOW",ir?"Renounced":"Active");
+  }catch(e){}
+}
+
+async function connectWallet(){
+  if(!window.ethereum){toast("MetaMask not found","error");return;}
+  const btn=$("connectBtn");btn.disabled=true;btn.textContent="Connecting...";
+  try{
     await window.ethereum.request({method:"eth_requestAccounts"});
-    const chainId = await window.ethereum.request({method:"eth_chainId"});
-    if(chainId !== CHAIN_HEX) {
-      try {
-        await window.ethereum.request({method:"wallet_switchEthereumChain", params:[{chainId:CHAIN_HEX}]});
-      } catch(e) {
-        await window.ethereum.request({method:"wallet_addEthereumChain", params:[{
-          chainId:CHAIN_HEX, chainName:"Polygon Mainnet",
-          nativeCurrency:{name:"POL",symbol:"POL",decimals:18},
-          rpcUrls:["https://polygon-rpc.com"],
-          blockExplorerUrls:["https://polygonscan.com"]
-        }]});
-      }
+    const cid=await window.ethereum.request({method:"eth_chainId"});
+    if(cid!==CHAIN_HEX){
+      try{await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:CHAIN_HEX}]});}
+      catch{await window.ethereum.request({method:"wallet_addEthereumChain",params:[{chainId:CHAIN_HEX,chainName:"Polygon Mainnet",nativeCurrency:{name:"POL",symbol:"POL",decimals:18},rpcUrls:["https://polygon-rpc.com"],blockExplorerUrls:["https://polygonscan.com"]}]});}
     }
-    provider = new ethers.BrowserProvider(window.ethereum);
-    signer   = await provider.getSigner();
-    walletAddress = await signer.getAddress();
-    contract  = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
-    readContract = new ethers.Contract(CONTRACT_ADDR, ABI, provider);
-
-    document.getElementById("connectScreen").style.display = "none";
-    document.getElementById("mainApp").style.display = "block";
-    document.getElementById("walletAddr").textContent = walletAddress;
-    document.getElementById("walletBtn").textContent = shortAddr(walletAddress);
-
-    // Set referral input default
-    const urlRef = new URLSearchParams(window.location.search).get("ref");
-    if(urlRef) document.getElementById("regReferrer").value = urlRef;
-
+    provider=new ethers.BrowserProvider(window.ethereum);
+    signer=await provider.getSigner();
+    walletAddr=await signer.getAddress();
+    contract=new ethers.Contract(CONTRACT,ABI,signer);
+    rc=new ethers.Contract(CONTRACT,ABI,provider);
+    $("connectScreen").style.display="none";
+    $("mainApp").style.display="block";
+    set("hdrAddr",sh(walletAddr));
+    set("wInfoAddr",walletAddr);
+    const urlRef=new URLSearchParams(window.location.search).get("ref");
+    if(urlRef) $("regRef").value=urlRef;
     await refreshAll();
-    startROITicker();
-
-    window.ethereum.on("accountsChanged", ()=>window.location.reload());
-    window.ethereum.on("chainChanged", ()=>window.location.reload());
-
-  } catch(e) {
-    showToast(e.message || "Connection failed","error");
-  }
+    startTicker();
+    window.ethereum.on("accountsChanged",()=>location.reload());
+    window.ethereum.on("chainChanged",()=>location.reload());
+  }catch(e){toast(e.message||"Failed","error");btn.disabled=false;btn.textContent="Connect MetaMask";}
 }
 
-function disconnectWallet() {
-  if(roiInterval) clearInterval(roiInterval);
-  document.getElementById("connectScreen").style.display = "flex";
-  document.getElementById("mainApp").style.display = "none";
-  walletAddress = null;
+function disconnectWallet(){
+  clearInterval(roiInt);walletAddr=null;closeModal("mWallet");
+  $("connectScreen").style.display="flex";$("mainApp").style.display="none";
 }
 
-// ═══════════════════════════════════════════════════════
-//  REFRESH ALL DATA
-// ═══════════════════════════════════════════════════════
-async function refreshAll() {
-  if(!walletAddress) return;
-  try {
-    await Promise.all([
-      loadGlobalStats(),
-      loadUserStats(),
-      loadBooster(),
-      loadPendingROI()
+async function refreshAll(){
+  if(!walletAddr)return;
+  try{await Promise.all([loadGlobal(),loadUser()]);}catch(e){console.error(e);}
+}
+
+async function loadGlobal(){
+  const [tu,tp,cb]=await Promise.all([rc.totalUsers(),rc.totalPackages(),rc.getContractBalance()]);
+  set("gU",tu.toString());set("gP",tp.toString());set("gB",fe(cb).toFixed(0)+" POL");
+}
+
+async function loadUser(){
+  try{
+    const[u,bal,isReg,boost]=await Promise.all([
+      rc.getUserByAddress(walletAddr),provider.getBalance(walletAddr),
+      rc.isRegistered(walletAddr),rc.getBoosterStatus(walletAddr)
     ]);
-    updateWithdrawPreview();
-  } catch(e) { showToast("Error loading data: "+e.message,"error"); }
-}
-
-async function loadGlobalStats() {
-  const [tu, tp, tw, cb, ir] = await Promise.all([
-    readContract.totalUsers(),
-    readContract.totalPackages(),
-    readContract.totalWithdrawals(),
-    readContract.getContractBalance(),
-    readContract.isOwnershipRenounced()
-  ]);
-  document.getElementById("gTotalUsers").textContent  = tu.toString();
-  document.getElementById("gTotalPkgs").textContent   = tp.toString();
-  document.getElementById("gTotalWds").textContent    = tw.toString();
-  document.getElementById("gContractBal").textContent = fmt2(cb);
-  document.getElementById("gOwnership").textContent   = ir ? "Renounced ✓" : "Active";
-  if(ir) document.getElementById("gOwnership").style.color = "var(--green)";
-}
-
-async function loadUserStats() {
-  try {
-    const u = await readContract.getUserByAddress(walletAddress);
-    const bal = await provider.getBalance(walletAddress);
-    document.getElementById("walletBal").textContent = fmt2(bal);
-
-    const isReg = await readContract.isRegistered(walletAddress);
-    document.getElementById("regBanner").style.display = isReg ? "none" : "flex";
-
-    document.getElementById("u-selfTotal").textContent  = fmt2(u.selfTotal);
-    document.getElementById("u-totalTopay").textContent = fmt2(u.totalTopay);
-    document.getElementById("u-totalIncome").textContent = fmt2(u.totalIncome);
-    document.getElementById("u-unpaidIncome").textContent = fmt2(u.unpaidIncome);
-    document.getElementById("u-capType").textContent   = u.isThree==1n ? "3x Cap" : "2x Cap";
-    document.getElementById("u-isLeader").textContent  = u.isLeader ? "✅ Leader" : "Not Yet";
-    document.getElementById("u-rank").textContent      = u.ranknow > 0n ? "Rank " + u.ranknow.toString() : "Unranked";
-    document.getElementById("u-userId").textContent    = "#" + u.userId.toString();
-
-    document.getElementById("u-roi").textContent        = fmt2(u.selfRoiTotal);
-    document.getElementById("u-direct").textContent     = fmt2(u.directIncomeTotal);
-    document.getElementById("u-level").textContent      = fmt2(u.levelTotal);
-    document.getElementById("u-booster").textContent    = fmt2(u.boosterTotal);
-    document.getElementById("u-leader").textContent     = fmt2(u.leaderTotal);
-    document.getElementById("u-rankIncome").textContent = fmt2(u.rankTotal);
-
-    document.getElementById("wdBalance").textContent  = fmt2(u.unpaidIncome);
-    document.getElementById("cmpBalance").textContent = fmt2(u.unpaidIncome);
-
-    // Cap progress
-    if(u.totalTopay > 0n) {
-      const pct = Number((u.totalIncome * 100n) / u.totalTopay);
-      document.getElementById("capProgress").style.width = Math.min(pct,100) + "%";
+    lastU=u;
+    const bs=f2(bal);set("wBal",bs);set("wInfoBal",bs);
+    $("regAlert").style.display=isReg?"none":"flex";
+    set("uUnpaid",f2(u.unpaidIncome));
+    set("uSelf",f2(u.selfTotal));
+    set("uTotInc",f2(u.totalIncome));
+    set("uCap",u.isThree==1n?"3x Cap":"2x Cap");
+    set("uId","#"+u.userId.toString());
+    set("iROI",f2(u.selfRoiTotal));set("iDirect",f2(u.directIncomeTotal));
+    set("iLevel",f2(u.levelTotal));set("iBooster",f2(u.boosterTotal));
+    set("iLeader",f2(u.leaderTotal));set("iRank",f2(u.rankTotal));
+    set("sLeader",u.isLeader?"Leader":"Not Yet");
+    set("sRank",u.ranknow>0n?"Rank "+u.ranknow.toString():"Unranked");
+    set("sLevel","L"+u.levelsno.toString()+"/L7");
+    const bTypes={0:"None",1:"Type 1",2:"Type 2",3:"Type 3"};
+    const bt=Number(boost[0]);
+    set("sBooster",bTypes[bt]||"None");
+    set("bType",bTypes[bt]||"None");
+    set("bRate",(Number(boost[1])/100).toFixed(2)+"%/day");
+    set("bPending",f6(boost[2]));
+    if(u.totalTopay>0n){
+      const pct=Math.min(100,Number((u.totalIncome*100n)/u.totalTopay));
+      $("capBar").style.width=pct+"%";
+      set("capPct",pct.toFixed(1)+"%");set("capMax",f2(u.totalTopay));
     }
-
-    // Level grid
-    const levelPcts = [2,5,8,10,12,13,15];
-    const lvl = Number(u.levelsno);
-    const levelReqs = ["Default","2 Directs","4D+1K POL","6D+2K POL","8D+5K POL","10D+8K POL","12D+15K POL"];
-    let html = "";
-    for(let i=1;i<=7;i++){
-      const unlocked = lvl >= i;
-      html += `<div class="level-box ${unlocked?'unlocked':''}">
-        <div class="level-num">L${i}</div>
-        <div class="level-pct">${levelPcts[i-1]}%</div>
-        <div style="font-size:9px;color:var(--muted);margin-top:2px;">${unlocked?'✓':levelReqs[i-1]}</div>
-      </div>`;
-    }
-    document.getElementById("levelGrid").innerHTML = html;
-
-    // Referral link
-    const refLink = SITE_URL + "?ref=" + walletAddress;
-    document.getElementById("refLinkBox").textContent = refLink;
-
-    return u;
-  } catch(e) { console.error("loadUserStats",e); }
+    const lp=[2,5,8,10,12,13,15];
+    const lvl=Number(u.levelsno);
+    $("lvGrid").innerHTML=lp.map((p,i)=>`<div class="lv-box ${lvl>i?"on":""}"><div class="lv-n">L${i+1}</div><div class="lv-p">${p}%</div>${lvl>i?'<div class="lv-ck">&#10003;</div>':''}</div>`).join("");
+    const rl=SITE+"?ref="+walletAddr;
+    const rb=$("refBox");const rb2=$("refBox2");
+    if(rb)rb.textContent=rl;if(rb2)rb2.textContent=rl;
+  }catch(e){console.error(e);}
 }
 
-async function loadBooster() {
-  try {
-    const [bType, bRate, bPending] = await readContract.getBoosterStatus(walletAddress);
-    const typeNames = {0:"None",1:"Type 1 (0.30%/day)",2:"Type 2 (0.50%/day)",3:"Type 3 (1.00%/day)"};
-    const typeColors = {0:"var(--muted)",1:"#fd9644",2:"var(--cyan)",3:"var(--green)"};
-    const t = Number(bType);
-    document.getElementById("boosterCard").innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;">
-        <div>
-          <div class="u-stat-label">Booster Type</div>
-          <div style="font-size:15px;font-weight:600;color:${typeColors[t]};margin-top:4px;">${typeNames[t]||"None"}</div>
-        </div>
-        <div>
-          <div class="u-stat-label">Effective Rate</div>
-          <div style="font-size:15px;font-weight:600;color:var(--cyan);margin-top:4px;">${(Number(bRate)/100).toFixed(2)}% / day</div>
-        </div>
-        <div>
-          <div class="u-stat-label">Pending Booster Income</div>
-          <div style="font-size:15px;font-weight:600;color:var(--gold);margin-top:4px;">${fmt6(bPending)}</div>
-        </div>
-      </div>
-      ${t===0?'<div style="margin-top:12px;font-size:12px;color:var(--muted);">Qualify by building direct business within 3/7/15 days of joining.</div>':''}
-    `;
-  } catch(e) { console.error("booster",e); }
+async function startTicker(){
+  const tick=async()=>{
+    if(!walletAddr)return;
+    try{const r=await rc.getPendingROI(walletAddr);set("pendingROI",f6(r));}catch(e){}
+  };
+  await tick();roiInt=setInterval(tick,10000);
 }
 
-async function loadPendingROI() {
-  try {
-    const roi = await readContract.getPendingROI(walletAddress);
-    lastPendingROI = roi;
-    document.getElementById("pendingROI").textContent = fmt6(roi);
-  } catch(e) {}
+async function loadPackages(){
+  const el=$("pkgList");el.innerHTML='<div class="empty">Loading...</div>';
+  try{
+    const pkgs=await rc.getPackagesByUser(walletAddr);
+    if(!pkgs.length){el.innerHTML='<div class="empty"><div class="empty-icon">&#128230;</div>No packages yet</div>';return;}
+    const rates=[[500,"1.0%/day"],[3000,"1.2%/day"],[8000,"1.5%/day"],[15000,"1.8%/day"],[20000,"2.0%/day"],[Infinity,"2.5%/day"]];
+    const gr=amt=>{const p=fe(amt);for(const[c,r]of rates)if(p<=c)return r;return"2.5%/day";};
+    el.innerHTML=[...pkgs].reverse().map(p=>`
+      <div class="pkg-item">
+        <div class="pkg-l"><div class="pkg-id">Package #${p.pkgId.toString()}</div><div class="pkg-amt">${f2(p.amount)}</div><div class="pkg-date">Bought: ${fd(p.timeStamp)}</div></div>
+        <div class="pkg-r"><div class="pkg-rate">${gr(p.amount)}</div><div class="pkg-s">Active</div><div class="pkg-s">Last: ${fd(p.lastRoiTime)}</div></div>
+      </div>`).join("");
+  }catch(e){el.innerHTML='<div class="empty">Error loading</div>';}
 }
 
-async function loadPackages() {
-  try {
-    const pkgs = await readContract.getPackagesByUser(walletAddress);
-    const rates = [
-      [500,   "1.0%/day"],
-      [3000,  "1.2%/day"],
-      [8000,  "1.5%/day"],
-      [15000, "1.8%/day"],
-      [20000, "2.0%/day"],
-      [Infinity,"2.5%/day"]
-    ];
-    function getRate(amt) {
-      const pol = parseFloat(ethers.formatEther(amt));
-      for(const [cap,r] of rates) if(pol<=cap) return r;
-      return "2.5%/day";
-    }
-    if(pkgs.length === 0) {
-      document.getElementById("pkgGrid").innerHTML = '<div style="color:var(--muted);">No packages yet. Buy a package to start earning.</div>';
-      return;
-    }
-    document.getElementById("pkgGrid").innerHTML = pkgs.map((p,i) => `
-      <div class="pkg-card">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Package #${p.pkgId.toString()}</div>
-        <div class="pkg-amount">${fmt2(p.amount)}</div>
-        <div class="pkg-rate">Rate: ${getRate(p.amount)}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:10px;">Bought: ${fmtDate(p.timeStamp)}</div>
-        <div style="font-size:11px;color:var(--muted);">Last ROI: ${fmtDate(p.lastRoiTime)}</div>
-      </div>
-    `).join("");
-  } catch(e) { showToast("Error loading packages","error"); }
+async function loadTeam(){
+  try{
+    const[u,[str,wk]]=await Promise.all([rc.getUserByAddress(walletAddr),rc.getTeamSplit(walletAddr)]);
+    set("tDir",u.directCount.toString());set("tTeam",u.teamCount.toString());
+    set("tDB",f2(u.directBusiness));set("tTB",f2(u.teamBusiness));
+    set("tStr",str.toString());set("tWk",wk.toString());
+  }catch(e){}
 }
 
-async function loadTeam() {
-  try {
-    const u = await readContract.getUserByAddress(walletAddress);
-    const [strong, weaker] = await readContract.getTeamSplit(walletAddress);
-    document.getElementById("t-directs").textContent   = u.directCount.toString();
-    document.getElementById("t-team").textContent      = u.teamCount.toString();
-    document.getElementById("t-directBiz").textContent = fmt2(u.directBusiness);
-    document.getElementById("t-teamBiz").textContent   = fmt2(u.teamBusiness);
-    document.getElementById("t-strong").textContent    = strong.toString();
-    document.getElementById("t-weaker").textContent    = weaker.toString();
-  } catch(e) { showToast("Error loading team data","error"); }
+const iLabels={1:"ROI",2:"Level",3:"Rank",4:"Booster",5:"Leader",6:"Direct"};
+const iBadges={1:"bg",2:"bgg",3:"br",4:"bo",5:"bp",6:"bc"};
+
+async function loadIncome(type,btn){
+  document.querySelectorAll(".ifbtn").forEach(b=>b.classList.remove("on"));
+  if(btn)btn.classList.add("on");
+  const tb=$("incTbody");tb.innerHTML='<tr><td colspan="5" class="empty">Loading...</td></tr>';
+  try{
+    const recs=await rc.getIncomeByUser(walletAddr,type);
+    if(!recs.length){tb.innerHTML=`<tr><td colspan="5" class="empty">No records yet</td></tr>`;return;}
+    tb.innerHTML=[...recs].reverse().map(r=>`<tr><td class="muted">#${r.incomeId.toString()}</td><td><span class="bdg ${iBadges[type]}">${iLabels[type]}</span></td><td style="color:var(--gold);font-weight:600;">${f4(r.amount)}</td><td>${r.level>0n?"L"+r.level.toString():"—"}</td><td class="muted">${fd(r.timeStamp)}</td></tr>`).join("");
+  }catch(e){tb.innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">Error</td></tr>';}
 }
 
-async function loadIncome(type) {
-  const typeLabels = {1:"ROI",2:"Level Income",3:"Rank Bonus",4:"Booster",5:"Leader Bonus",6:"Direct Commission"};
-  const typeBadge  = {1:"badge-gold",2:"badge-green",3:"badge-red",4:"badge-orange",5:"badge-purple",6:"badge-cyan"};
-  const tbody = document.getElementById("incomeTbody");
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;"><span class="spin"></span> Loading...</td></tr>';
-  try {
-    const records = await readContract.getIncomeByUser(walletAddress, type);
-    if(records.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);">No ${typeLabels[type]} records yet</td></tr>`;
-      return;
-    }
-    tbody.innerHTML = [...records].reverse().map(r => `
-      <tr>
-        <td style="color:var(--muted);">#${r.incomeId.toString()}</td>
-        <td><span class="badge ${typeBadge[type]}">${typeLabels[type]}</span></td>
-        <td style="color:var(--gold);font-weight:600;">${fmt6(r.amount)}</td>
-        <td>${r.level > 0n ? "Level "+r.level.toString() : "—"}</td>
-        <td>${(Number(r.rateBps)/100).toFixed(2)}%</td>
-        <td style="color:var(--muted);">${fmtDate(r.timeStamp)}</td>
-      </tr>
-    `).join("");
-  } catch(e) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);">Error: ${e.message}</td></tr>`;
-  }
+async function loadHistory(){
+  const tb=$("wdTbody");tb.innerHTML='<tr><td colspan="4" class="empty">Loading...</td></tr>';
+  try{
+    const wds=await rc.getWithdrawalsByUser(walletAddr);
+    if(!wds.length){tb.innerHTML='<tr><td colspan="4" class="empty">No withdrawals yet</td></tr>';return;}
+    tb.innerHTML=[...wds].reverse().map(w=>`<tr><td class="muted">#${w.wdId.toString()}</td><td>${f2(w.grossAmount)}</td><td style="color:var(--green);font-weight:600;">${f2(w.userReceived)}</td><td class="muted">${fd(w.timeStamp)}</td></tr>`).join("");
+  }catch(e){tb.innerHTML='<tr><td colspan="4" class="empty">Error</td></tr>';}
 }
 
-async function loadWithdrawalHistory() {
-  const tbody = document.getElementById("wdTbody");
-  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;"><span class="spin"></span> Loading...</td></tr>';
-  try {
-    const wds = await readContract.getWithdrawalsByUser(walletAddress);
-    if(wds.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);">No withdrawals yet</td></tr>';
-      return;
-    }
-    tbody.innerHTML = [...wds].reverse().map(w => `
-      <tr>
-        <td style="color:var(--muted);">#${w.wdId.toString()}</td>
-        <td style="color:var(--text);">${fmt2(w.grossAmount)}</td>
-        <td style="color:var(--green);font-weight:600;">${fmt2(w.userReceived)}</td>
-        <td style="color:var(--muted);">${fmtDate(w.timeStamp)}</td>
-      </tr>
-    `).join("");
-  } catch(e) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--red);">Error loading history</td></tr>`;
-  }
+function updateBuyPrev(){
+  const v=parseFloat($("buyAmt").value);const el=$("buyPrev");
+  if(v>=10){const rates=[[500,1.0],[3000,1.2],[8000,1.5],[15000,1.8],[20000,2.0],[Infinity,2.5]];let r=2.5;for(const[c,rt]of rates)if(v<=c){r=rt;break;}el.style.display="block";el.innerHTML=`Daily ROI: <strong>${(v*r/100).toFixed(4)} POL</strong> at ${r}%/day`;}
+  else el.style.display="none";
+}
+function updateCmpPrev(){
+  const v=parseFloat($("cmpAmt").value);const el=$("cmpPrev");
+  if(v>=10){el.style.display="block";el.innerHTML=`New package: <strong>${(v*.87).toFixed(4)} POL</strong>`;}else el.style.display="none";
+}
+function updateWdPrev(){
+  const v=parseFloat($("wdAmt").value);const el=$("wdPrev");
+  if(v>0){el.style.display="block";el.innerHTML=`You receive: <strong>${(v*.9).toFixed(4)} POL</strong>`;}else el.style.display="none";
 }
 
-// ═══════════════════════════════════════════════════════
-//  LIVE ROI TICKER
-// ═══════════════════════════════════════════════════════
-function startROITicker() {
-  if(roiInterval) clearInterval(roiInterval);
-  roiInterval = setInterval(async () => {
-    if(!walletAddress) return;
-    try {
-      const roi = await readContract.getPendingROI(walletAddress);
-      lastPendingROI = roi;
-      document.getElementById("pendingROI").textContent = fmt6(roi);
-    } catch(e) {}
-  }, 10000);
+async function doRegister(){
+  const ref=$("regRef").value.trim();
+  if(!ethers.isAddress(ref)){toast("Enter a valid address","error");return;}
+  setSpin("regBtn","regSpin",true);
+  try{const tx=await contract.register(ref);toast("Sending...","info");await tx.wait();closeModal("mRegister");showSucc("✅","Registered!","Account active. Now buy a package to start earning.");await refreshAll();}
+  catch(e){toast(e.reason||e.message||"Failed","error");}
+  setSpin("regBtn","regSpin",false);
 }
 
-// ═══════════════════════════════════════════════════════
-//  WRITE FUNCTIONS
-// ═══════════════════════════════════════════════════════
-async function doRegister() {
-  const ref = document.getElementById("regReferrer").value.trim();
-  if(!ethers.isAddress(ref)) { showToast("Enter a valid referrer address","error"); return; }
-  setBtn("regBtn", true);
-  try {
-    const tx = await contract.register(ref);
-    showToast("Transaction sent. Waiting for confirmation...","info");
-    await tx.wait();
-    showToast("Registered successfully!","success");
-    await refreshAll();
-  } catch(e) {
-    showToast(e.reason || e.message || "Registration failed","error");
-  }
-  setBtn("regBtn", false);
+async function doBuyPackage(){
+  const amt=$("buyAmt").value;
+  if(!amt||parseFloat(amt)<10){toast("Minimum is 10 POL","error");return;}
+  setSpin("buyBtn","buySpin",true);
+  try{const tx=await contract.buyPackage({value:ethers.parseEther(String(parseFloat(amt)))});toast("Sending...","info");await tx.wait();closeModal("mBuy");showSucc("📦","Package Active!",`${parseFloat(amt).toFixed(2)} POL earning ROI now.`);await refreshAll();loadPackages();}
+  catch(e){toast(e.reason||e.message||"Failed","error");}
+  setSpin("buyBtn","buySpin",false);
 }
 
-async function doBuyPackage() {
-  const amt = document.getElementById("buyAmount").value;
-  if(!amt || parseFloat(amt) < 10) { showToast("Minimum package is 10 POL","error"); return; }
-  setBtn("buyBtn", true);
-  try {
-    const value = ethers.parseEther(amt.toString());
-    const tx = await contract.buyPackage({value});
-    showToast("Transaction sent. Waiting for confirmation...","info");
-    await tx.wait();
-    showToast("Package bought successfully!","success");
-    await refreshAll();
-    loadPackages();
-  } catch(e) {
-    showToast(e.reason || e.message || "Transaction failed","error");
-  }
-  setBtn("buyBtn", false);
+async function doClaimROI(){
+  setSpin("claimBtn","claimSpin",true);
+  try{const tx=await contract.claimROI();toast("Claiming...","info");await tx.wait();showSucc("💰","ROI Claimed!","Added to your income balance.");await refreshAll();}
+  catch(e){toast(e.reason||e.message||"Failed","error");}
+  setSpin("claimBtn","claimSpin",false);
 }
 
-async function claimROI() {
-  setBtn("claimBtn", true);
-  try {
-    const tx = await contract.claimROI();
-    showToast("Claim sent. Waiting for confirmation...","info");
-    await tx.wait();
-    showToast("ROI claimed successfully!","success");
-    await refreshAll();
-  } catch(e) {
-    showToast(e.reason || e.message || "Claim failed","error");
-  }
-  setBtn("claimBtn", false);
+async function doCompound(){
+  const amt=$("cmpAmt").value;
+  if(!amt||parseFloat(amt)<10){toast("Minimum is 10 POL","error");return;}
+  setSpin("cmpBtn","cmpSpin",true);
+  try{const tx=await contract.compound(ethers.parseEther(String(parseFloat(amt))));toast("Compounding...","info");await tx.wait();closeModal("mCompound");showSucc("🔄","Compounded!","New package created from income.");await refreshAll();loadPackages();}
+  catch(e){toast(e.reason||e.message||"Failed","error");}
+  setSpin("cmpBtn","cmpSpin",false);
 }
 
-async function doCompound() {
-  const amt = document.getElementById("cmpAmount").value;
-  if(!amt || parseFloat(amt) < 10) { showToast("Minimum compound is 10 POL","error"); return; }
-  setBtn("cmpBtn", true);
-  try {
-    const value = ethers.parseEther(amt.toString());
-    const tx = await contract.compound(value);
-    showToast("Compound sent. Waiting for confirmation...","info");
-    await tx.wait();
-    showToast("Compounded successfully! New package created.","success");
-    await refreshAll();
-    loadPackages();
-  } catch(e) {
-    showToast(e.reason || e.message || "Compound failed","error");
-  }
-  setBtn("cmpBtn", false);
+async function doWithdraw(){
+  const amt=$("wdAmt").value;
+  if(!amt||parseFloat(amt)<=0){toast("Enter an amount","error");return;}
+  setSpin("wdBtn","wdSpin",true);
+  try{const tx=await contract.withdrawIncome(ethers.parseEther(String(parseFloat(amt))));toast("Withdrawing...","info");await tx.wait();closeModal("mWithdraw");showSucc("🏦","Withdrawn!",`${(parseFloat(amt)*.9).toFixed(4)} POL sent to wallet.`);await refreshAll();loadHistory();}
+  catch(e){toast(e.reason||e.message||"Failed","error");}
+  setSpin("wdBtn","wdSpin",false);
 }
 
-async function doWithdraw() {
-  const amt = document.getElementById("wdAmount").value;
-  if(!amt || parseFloat(amt) <= 0) { showToast("Enter a valid amount","error"); return; }
-  setBtn("wdBtn", true);
-  try {
-    const value = ethers.parseEther(amt.toString());
-    const tx = await contract.withdrawIncome(value);
-    showToast("Withdrawal sent. Waiting for confirmation...","info");
-    await tx.wait();
-    showToast("Withdrawn successfully! 90% sent to your wallet.","success");
-    await refreshAll();
-    loadWithdrawalHistory();
-  } catch(e) {
-    showToast(e.reason || e.message || "Withdrawal failed","error");
-  }
-  setBtn("wdBtn", false);
+function copyRef(){
+  const link=SITE+"?ref="+walletAddr;
+  navigator.clipboard.writeText(link).then(()=>toast("Copied!","success")).catch(()=>{const el=document.createElement("textarea");el.value=link;document.body.appendChild(el);el.select();document.execCommand("copy");el.remove();toast("Copied!","success");});
 }
 
-// ═══════════════════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════════════════
-function updateWithdrawPreview() {
-  const wdAmt = document.getElementById("wdAmount");
-  const preview = document.getElementById("wdPreview");
-  const receiveEl = document.getElementById("wdReceiveAmt");
-  wdAmt.addEventListener("input", () => {
-    const v = parseFloat(wdAmt.value);
-    if(v > 0) {
-      preview.style.display = "block";
-      receiveEl.textContent = (v * 0.9).toFixed(4);
-    } else {
-      preview.style.display = "none";
-    }
-  });
-}
-
-function copyRefLink() {
-  const link = document.getElementById("refLinkBox").textContent;
-  navigator.clipboard.writeText(link).then(()=>showToast("Referral link copied!","success"));
-}
-
-// Auto-connect if MetaMask is already authorized
-window.addEventListener("load", async () => {
-  if(window.ethereum) {
-    const accounts = await window.ethereum.request({method:"eth_accounts"}).catch(()=>[]);
-    if(accounts.length > 0) connectWallet();
+window.addEventListener("load",async()=>{
+  loadConnectStats();
+  if(window.ethereum){
+    const a=await window.ethereum.request({method:"eth_accounts"}).catch(()=>[]);
+    if(a.length)connectWallet();
   }
 });
 </script>
